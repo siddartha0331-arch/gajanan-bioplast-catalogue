@@ -1,10 +1,13 @@
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X } from "lucide-react";
-import { useState } from "react";
+import { Menu, X, User } from "lucide-react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { User as SupabaseUser } from "@supabase/supabase-js";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [user, setUser] = useState<SupabaseUser | null>(null);
   const location = useLocation();
 
   const navLinks = [
@@ -13,6 +16,18 @@ const Navbar = () => {
     { name: "About", path: "/about" },
     { name: "Contact", path: "/contact" },
   ];
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -41,8 +56,21 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
+            {user ? (
+              <Button asChild variant="default" className="bg-gradient-to-r from-primary to-accent">
+                <Link to="/dashboard">
+                  <User className="mr-2 h-4 w-4" />
+                  Dashboard
+                </Link>
+              </Button>
+            ) : (
+              <Button asChild variant="default" className="bg-gradient-to-r from-primary to-accent">
+                <Link to="/auth">Login / Sign Up</Link>
+              </Button>
+            )}
             <Button
               asChild
+              variant="outline"
               className="bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
             >
               <a
@@ -82,6 +110,20 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
+            {user ? (
+              <Button asChild className="w-full mt-2 bg-gradient-to-r from-primary to-accent">
+                <Link to="/dashboard" onClick={() => setIsOpen(false)}>
+                  <User className="mr-2 h-4 w-4" />
+                  Dashboard
+                </Link>
+              </Button>
+            ) : (
+              <Button asChild className="w-full mt-2 bg-gradient-to-r from-primary to-accent">
+                <Link to="/auth" onClick={() => setIsOpen(false)}>
+                  Login / Sign Up
+                </Link>
+              </Button>
+            )}
             <Button
               asChild
               className="w-full mt-2 bg-gradient-to-r from-primary to-accent"

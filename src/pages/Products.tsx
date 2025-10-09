@@ -1,11 +1,28 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { products, Product } from "@/data/products";
 import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/integrations/supabase/client";
+import { User } from "@supabase/supabase-js";
 
 const Products = () => {
   const [selectedType, setSelectedType] = useState<string>("All");
+  const [user, setUser] = useState<User | null>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const types = ["All", "D Cut", "W Cut", "PP Woven", "BOPP"];
 
@@ -75,20 +92,29 @@ const Products = () => {
                   <p className="text-2xl font-bold text-primary mb-4">
                     ₹{product.price}
                   </p>
-                  <Button
-                    asChild
-                    className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90"
-                  >
-                    <a
-                      href={`https://wa.me/919834711168?text=Hello%20Gajanan%20Bioplast,%20I%20want%20to%20enquire%20about%20${encodeURIComponent(
-                        product.name
-                      )}%20(${product.size})%20priced%20at%20₹${product.price}.`}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                  {user ? (
+                    <Button
+                      onClick={() => navigate("/dashboard")}
+                      className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90"
                     >
-                      Enquire on WhatsApp
-                    </a>
-                  </Button>
+                      Book Now
+                    </Button>
+                  ) : (
+                    <Button
+                      asChild
+                      className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90"
+                    >
+                      <a
+                        href={`https://wa.me/919834711168?text=Hello%20Gajanan%20Bioplast,%20I%20want%20to%20enquire%20about%20${encodeURIComponent(
+                          product.name
+                        )}%20(${product.size})%20priced%20at%20₹${product.price}.`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Enquire on WhatsApp
+                      </a>
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>

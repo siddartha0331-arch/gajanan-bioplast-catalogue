@@ -1,21 +1,24 @@
-import { Link, useLocation } from "react-router-dom";
-import { Menu, X, User } from "lucide-react";
 import { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Menu, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const location = useLocation();
 
-  const navLinks = [
-    { name: "Home", path: "/" },
-    { name: "Products", path: "/products" },
-    { name: "About", path: "/about" },
-    { name: "Contact", path: "/contact" },
-  ];
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -29,113 +32,113 @@ const Navbar = () => {
     return () => subscription.unsubscribe();
   }, []);
 
+  const navLinks = [
+    { name: "Home", path: "/" },
+    { name: "Products", path: "/products" },
+    { name: "About", path: "/about" },
+    { name: "Contact", path: "/contact" },
+  ];
+
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <nav className="bg-background border-b border-border sticky top-0 z-50 backdrop-blur-sm bg-background/95">
+    <nav
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled
+          ? "bg-background/95 backdrop-blur-lg shadow-[var(--shadow-card)] border-b border-border"
+          : "bg-transparent"
+      }`}
+    >
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center h-16">
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              Gajanan Bioplast
-            </div>
+        <div className="flex items-center justify-between h-20">
+          {/* Logo */}
+          <Link to="/" className="group">
+            <h1 className="text-2xl font-bold">
+              <span className="text-gradient group-hover:opacity-80 transition-opacity">
+                Gajanan Bioplast
+              </span>
+            </h1>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
                 to={link.path}
-                className={`text-sm font-medium transition-colors hover:text-primary ${
-                  isActive(link.path)
-                    ? "text-primary"
-                    : "text-muted-foreground"
+                className={`relative text-sm font-medium transition-colors hover:text-primary ${
+                  isActive(link.path) ? "text-primary" : "text-foreground"
                 }`}
               >
                 {link.name}
+                {isActive(link.path) && (
+                  <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-primary to-accent rounded-full" />
+                )}
               </Link>
             ))}
+          </div>
+
+          {/* Desktop CTA */}
+          <div className="hidden md:block">
             {user ? (
-              <Button asChild variant="default" className="bg-gradient-to-r from-primary to-accent">
-                <Link to="/dashboard">
-                  <User className="mr-2 h-4 w-4" />
-                  Dashboard
-                </Link>
+              <Button asChild className="bg-gradient-to-r from-primary to-accent hover:shadow-[var(--shadow-elegant)] transition-all duration-300">
+                <Link to="/dashboard">Dashboard</Link>
               </Button>
             ) : (
-              <Button asChild variant="default" className="bg-gradient-to-r from-primary to-accent">
+              <Button asChild className="bg-gradient-to-r from-primary to-accent hover:shadow-[var(--shadow-elegant)] transition-all duration-300">
                 <Link to="/auth">Login / Sign Up</Link>
               </Button>
             )}
-            <Button
-              asChild
-              variant="outline"
-              className="bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
-            >
-              <a
-                href="https://wa.me/919834711168?text=Hello%20Gajanan%20Bioplast,%20I%20would%20like%20to%20enquire%20about%20your%20products."
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                WhatsApp Us
-              </a>
-            </Button>
           </div>
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden"
             onClick={() => setIsOpen(!isOpen)}
+            className="md:hidden p-2 rounded-lg hover:bg-muted transition-colors"
             aria-label="Toggle menu"
           >
-            {isOpen ? <X /> : <Menu />}
+            {isOpen ? (
+              <X className="h-6 w-6 text-foreground" />
+            ) : (
+              <Menu className="h-6 w-6 text-foreground" />
+            )}
           </button>
         </div>
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden pb-4 animate-fade-in">
-            {navLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                className={`block py-2 text-sm font-medium transition-colors hover:text-primary ${
-                  isActive(link.path)
-                    ? "text-primary"
-                    : "text-muted-foreground"
-                }`}
-                onClick={() => setIsOpen(false)}
-              >
-                {link.name}
-              </Link>
-            ))}
-            {user ? (
-              <Button asChild className="w-full mt-2 bg-gradient-to-r from-primary to-accent">
-                <Link to="/dashboard" onClick={() => setIsOpen(false)}>
-                  <User className="mr-2 h-4 w-4" />
-                  Dashboard
+          <div className="md:hidden py-6 border-t border-border bg-background/95 backdrop-blur-lg">
+            <div className="flex flex-col gap-4">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  onClick={() => setIsOpen(false)}
+                  className={`px-4 py-3 rounded-lg text-sm font-medium transition-all ${
+                    isActive(link.path)
+                      ? "bg-gradient-to-r from-primary/10 to-accent/10 text-primary border-l-4 border-primary"
+                      : "text-foreground hover:bg-muted"
+                  }`}
+                >
+                  {link.name}
                 </Link>
-              </Button>
-            ) : (
-              <Button asChild className="w-full mt-2 bg-gradient-to-r from-primary to-accent">
-                <Link to="/auth" onClick={() => setIsOpen(false)}>
-                  Login / Sign Up
-                </Link>
-              </Button>
-            )}
-            <Button
-              asChild
-              className="w-full mt-2 bg-gradient-to-r from-primary to-accent"
-            >
-              <a
-                href="https://wa.me/919834711168?text=Hello%20Gajanan%20Bioplast,%20I%20would%20like%20to%20enquire%20about%20your%20products."
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                WhatsApp Us
-              </a>
-            </Button>
+              ))}
+              <div className="px-4 pt-2">
+                {user ? (
+                  <Button asChild className="w-full bg-gradient-to-r from-primary to-accent">
+                    <Link to="/dashboard" onClick={() => setIsOpen(false)}>
+                      Dashboard
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button asChild className="w-full bg-gradient-to-r from-primary to-accent">
+                    <Link to="/auth" onClick={() => setIsOpen(false)}>
+                      Login / Sign Up
+                    </Link>
+                  </Button>
+                )}
+              </div>
+            </div>
           </div>
         )}
       </div>

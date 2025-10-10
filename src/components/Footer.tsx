@@ -1,28 +1,35 @@
-import { MapPin, Phone, Mail } from "lucide-react";
+import { MapPin, Phone, Leaf } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
-    <footer className="relative border-t border-border bg-gradient-to-br from-muted/30 via-background to-muted/30">
+    <footer className="relative overflow-hidden section-diagonal-reverse bg-gradient-to-br from-muted via-background to-muted border-t-4 border-primary/20">
+      <div className="absolute inset-0 bg-mesh opacity-20" />
+      
       {/* Top Section */}
-      <div className="container mx-auto px-4 py-16">
+      <div className="container mx-auto px-4 py-16 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand Column */}
           <div className="space-y-6">
-            <h3 className="text-2xl font-bold text-gradient">
-              Gajanan Bioplast
-            </h3>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Leading manufacturer and wholesaler of eco-friendly non-woven bags, PP woven bags, and BOPP bags.
+            <div className="flex items-center space-x-3">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary via-secondary to-accent flex items-center justify-center">
+                <Leaf className="h-6 w-6 text-white" strokeWidth={3} />
+              </div>
+              <h3 className="text-2xl font-black text-gradient">
+                Gajanan Bioplast
+              </h3>
+            </div>
+            <p className="text-sm text-muted-foreground leading-relaxed font-medium">
+              Pioneering eco-friendly packaging with cutting-edge sustainability standards.
             </p>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
-              <span className="text-xs font-medium text-primary">GSTIN: 27DCPPG5295F1Z6</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-glass border-2 border-primary/30">
+              <span className="text-xs font-bold text-primary">GSTIN: 27DCPPG5295F1Z6</span>
             </div>
           </div>
 
           {/* Quick Links */}
           <div className="space-y-6">
-            <h4 className="text-lg font-bold">Quick Links</h4>
+            <h4 className="text-lg font-black text-gradient-secondary">Quick Links</h4>
             <ul className="space-y-3">
               {[
                 { name: "Home", path: "/" },
@@ -33,9 +40,9 @@ const Footer = () => {
                 <li key={link.path}>
                   <Link
                     to={link.path}
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-2 group"
+                    className="text-sm text-muted-foreground hover:text-primary transition-all duration-300 font-bold inline-flex items-center gap-2 group hover:translate-x-2"
                   >
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary/50 group-hover:bg-primary transition-colors" />
+                    <span className="text-primary">→</span>
                     {link.name}
                   </Link>
                 </li>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Leaf } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 
@@ -43,36 +43,39 @@ const Navbar = () => {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         isScrolled
-          ? "bg-background/95 backdrop-blur-lg shadow-[var(--shadow-card)] border-b border-border"
+          ? "bg-glass backdrop-blur-2xl shadow-[var(--shadow-glass)] border-b-2 border-primary/20"
           : "bg-transparent"
       }`}
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link to="/" className="group">
-            <h1 className="text-2xl font-bold">
-              <span className="text-gradient group-hover:opacity-80 transition-opacity">
-                Gajanan Bioplast
-              </span>
-            </h1>
+          <Link to="/" className="flex items-center space-x-3 group">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary via-secondary to-accent flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <Leaf className="h-5 w-5 text-white" strokeWidth={3} />
+            </div>
+            <span className="text-2xl font-black text-gradient tracking-tight">
+              Gajanan Bioplast
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-2">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
                 to={link.path}
-                className={`relative text-sm font-medium transition-colors hover:text-primary ${
-                  isActive(link.path) ? "text-primary" : "text-foreground"
+                className={`px-6 py-2.5 text-sm font-bold transition-all duration-300 rounded-xl relative overflow-hidden ${
+                  isActive(link.path)
+                    ? "text-primary-foreground bg-gradient-to-r from-primary via-secondary to-accent"
+                    : "text-foreground hover:text-primary hover:bg-muted"
                 }`}
               >
-                {link.name}
+                <span className="relative z-10">{link.name}</span>
                 {isActive(link.path) && (
-                  <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-primary to-accent rounded-full" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary via-secondary to-accent animate-pulse opacity-50" />
                 )}
               </Link>
             ))}
@@ -81,11 +84,11 @@ const Navbar = () => {
           {/* Desktop CTA */}
           <div className="hidden md:block">
             {user ? (
-              <Button asChild className="bg-gradient-to-r from-primary to-accent hover:shadow-[var(--shadow-elegant)] transition-all duration-300">
+              <Button asChild className="bg-gradient-to-r from-primary via-secondary to-accent hover:shadow-[var(--shadow-glow)] rounded-xl font-bold px-6 py-5">
                 <Link to="/dashboard">Dashboard</Link>
               </Button>
             ) : (
-              <Button asChild className="bg-gradient-to-r from-primary to-accent hover:shadow-[var(--shadow-elegant)] transition-all duration-300">
+              <Button asChild className="bg-gradient-to-r from-primary via-secondary to-accent hover:shadow-[var(--shadow-glow)] rounded-xl font-bold px-6 py-5">
                 <Link to="/auth">Login / Sign Up</Link>
               </Button>
             )}

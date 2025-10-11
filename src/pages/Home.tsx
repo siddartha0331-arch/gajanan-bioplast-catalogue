@@ -3,10 +3,65 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, Package, Leaf, Zap, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
 import heroBags from "@/assets/hero-bags.jpg";
+import dcutBag from "@/assets/dcut-bag.jpg";
+import wcutBag from "@/assets/wcut-bag.jpg";
+import ppBag from "@/assets/pp-bag.jpg";
+import boppBag from "@/assets/bopp-bag.jpg";
 import { products } from "@/data/products";
+import { InteractiveCarousel } from "@/components/ui/interactive-carousel";
+import { useParallax } from "@/hooks/useParallax";
+import { useMagneticHover } from "@/hooks/useMagneticHover";
+import { useEffect, useRef } from "react";
 
 const Home = () => {
   const featuredProducts = products.slice(0, 4);
+  const parallaxRef1 = useParallax<HTMLDivElement>({ speed: 0.3 });
+  const parallaxRef2 = useParallax<HTMLDivElement>({ speed: 0.5, direction: "down" });
+  const magneticRef1 = useMagneticHover<HTMLButtonElement>({ strength: 0.4 });
+  const magneticRef2 = useMagneticHover<HTMLButtonElement>({ strength: 0.4 });
+  const revealRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("active");
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+
+    revealRefs.current.forEach((ref) => {
+      if (ref) observer.observe(ref);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  const carouselItems = [
+    {
+      image: heroBags,
+      title: "Eco-Friendly Bag Solutions",
+      description: "Premium quality bags crafted with sustainability in mind. Join us in making the planet greener."
+    },
+    {
+      image: dcutBag,
+      title: "D-Cut Bags",
+      description: "Versatile and durable D-cut bags perfect for retail and everyday use."
+    },
+    {
+      image: wcutBag,
+      title: "W-Cut Bags", 
+      description: "Strong and reliable W-cut bags for heavy-duty applications."
+    },
+    {
+      image: ppBag,
+      title: "PP Woven Bags",
+      description: "Industrial-grade woven bags built to last and protect your products."
+    }
+  ];
 
   return (
     <div className="min-h-screen overflow-hidden">
@@ -56,9 +111,10 @@ const Home = () => {
               
               <div className="flex flex-col sm:flex-row gap-5 pt-4 animate-fade-up" style={{ animationDelay: "0.5s" }}>
                 <Button
+                  ref={magneticRef1}
                   asChild
                   size="lg"
-                  className="bg-gradient-to-r from-primary via-secondary to-accent hover:shadow-[var(--shadow-glow)] text-lg px-10 py-7 h-auto rounded-2xl font-bold group"
+                  className="magnetic-area bg-gradient-to-r from-primary via-secondary to-accent hover:shadow-[var(--shadow-glow)] text-lg px-10 py-7 h-auto rounded-2xl font-bold group"
                 >
                   <Link to="/products">
                     Explore Collection
@@ -66,10 +122,11 @@ const Home = () => {
                   </Link>
                 </Button>
                 <Button
+                  ref={magneticRef2}
                   asChild
                   size="lg"
                   variant="outline"
-                  className="border-3 border-primary hover:bg-primary hover:text-primary-foreground text-lg px-10 py-7 h-auto rounded-2xl font-bold"
+                  className="magnetic-area border-3 border-primary hover:bg-primary hover:text-primary-foreground text-lg px-10 py-7 h-auto rounded-2xl font-bold"
                 >
                   <a
                     href="https://wa.me/919834711168?text=Hello%20Gajanan%20Bioplast,%20I%20would%20like%20to%20enquire%20about%20your%20products."
@@ -82,9 +139,9 @@ const Home = () => {
               </div>
             </div>
 
-            {/* Right Image - 3D Rotation Effect */}
-            <div className="relative animate-fade-up rotate-3d" style={{ animationDelay: "0.2s" }}>
-              <div className="relative aspect-square overflow-hidden card-glass rounded-[3rem] shadow-[var(--shadow-morph)]">
+            {/* Right Image - Parallax with Shine Effect */}
+            <div ref={parallaxRef1} className="relative animate-fade-up parallax-layer" style={{ animationDelay: "0.2s" }}>
+              <div className="relative aspect-square overflow-hidden card-glass rounded-[3rem] shadow-[var(--shadow-morph)] image-shine">
                 <img
                   src={heroBags}
                   alt="Premium sustainable packaging solutions"
@@ -106,6 +163,11 @@ const Home = () => {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Interactive Carousel */}
+          <div className="mt-24 reveal-image" ref={(el) => (revealRefs.current[0] = el)}>
+            <InteractiveCarousel items={carouselItems} />
           </div>
         </div>
       </section>
@@ -145,11 +207,9 @@ const Home = () => {
             ].map((feature, index) => (
               <Card
                 key={feature.title}
-                className="border-4 border-foreground card-brutal bg-card overflow-hidden group"
-                style={{ 
-                  animationDelay: `${index * 0.15}s`,
-                  animation: "fade-up 0.8s ease-out forwards"
-                }}
+                className="border-4 border-foreground card-brutal bg-card overflow-hidden group reveal-image"
+                ref={(el) => (revealRefs.current[index + 1] = el)}
+                style={{ animationDelay: `${index * 0.15}s` }}
               >
                 <CardContent className="p-10">
                   <div className={`w-20 h-20 mb-8 rounded-3xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center group-hover:scale-110 group-hover:rotate-12 transition-all duration-500`}>
@@ -163,6 +223,10 @@ const Home = () => {
               </Card>
             ))}
           </div>
+        </div>
+
+        <div ref={parallaxRef2} className="parallax-layer absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full pointer-events-none opacity-5">
+          <Package className="w-96 h-96" />
         </div>
       </section>
 

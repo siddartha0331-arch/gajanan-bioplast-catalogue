@@ -8,6 +8,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { useTiltEffect } from "@/hooks/useTiltEffect";
 import { useMagneticHover } from "@/hooks/useMagneticHover";
+import { CustomizationDialog } from "@/components/products/CustomizationDialog";
+import { 
+  Palette, 
+  Package, 
+  Clock, 
+  CheckCircle2,
+  Sparkles 
+} from "lucide-react";
 
 const ProductCard = ({ product, index, user, navigate }: { 
   product: Product; 
@@ -21,61 +29,152 @@ const ProductCard = ({ product, index, user, navigate }: {
   return (
     <Card
       ref={tiltRef}
-      className="tilt-card group border-none shadow-lg hover:shadow-2xl transition-all duration-300 animate-fade-up"
+      className="tilt-card group border-none shadow-lg hover:shadow-2xl transition-all duration-300 animate-fade-up overflow-hidden"
       style={{ animationDelay: `${index * 0.05}s` }}
     >
       <div className="tilt-glow" />
       <div className="tilt-card-inner">
         <CardContent className="p-0">
-          <div className="aspect-square overflow-hidden rounded-t-lg bg-muted image-shine">
+          {/* Product Image with Badge Overlay */}
+          <div className="relative aspect-square overflow-hidden rounded-t-lg bg-muted image-shine">
             <img
               src={product.image}
               alt={product.name}
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:rotate-2"
             />
             <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-accent/20 mix-blend-overlay opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          </div>
-          <div className="p-6">
-            <div className="flex items-center justify-between mb-2">
-              <Badge className="bg-gradient-to-r from-primary to-accent text-white border-none">
+            
+            {/* Premium Badge */}
+            <div className="absolute top-4 right-4">
+              <Badge className="bg-gradient-to-r from-primary to-accent text-white border-none shadow-lg">
                 {product.type}
               </Badge>
-              <span className="text-xs text-muted-foreground font-medium">
-                {product.size}
-              </span>
             </div>
-            <h3 className="font-semibold mb-2 text-lg">{product.name}</h3>
-            <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-              {product.description}
-            </p>
-            <p className="text-2xl font-bold mb-4">
-              <span className="text-gradient">₹{product.price}</span>
-            </p>
-            {user ? (
-              <Button
-                ref={magneticRef}
-                onClick={() => navigate("/dashboard")}
-                className="w-full magnetic-area bg-gradient-to-r from-primary via-accent to-secondary hover:shadow-glow text-white"
-              >
-                Book Now
-              </Button>
-            ) : (
-              <Button
-                ref={magneticRef}
-                asChild
-                className="w-full magnetic-area bg-gradient-to-r from-primary via-accent to-secondary hover:shadow-glow text-white"
-              >
-                <a
-                  href={`https://wa.me/919834711168?text=Hello%20Gajanan%20Bioplast,%20I%20want%20to%20enquire%20about%20${encodeURIComponent(
-                    product.name
-                  )}%20(${product.size})%20priced%20at%20₹${product.price}.`}
-                  target="_blank"
-                  rel="noopener noreferrer"
+
+            {/* MOQ Badge */}
+            <div className="absolute top-4 left-4">
+              <Badge variant="secondary" className="shadow-lg">
+                MOQ: {product.moq}+
+              </Badge>
+            </div>
+
+            {/* Customization Overlay */}
+            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+              <CustomizationDialog product={product}>
+                <Button 
+                  size="lg"
+                  className="bg-white text-black hover:bg-white/90 font-bold shadow-2xl transform scale-90 group-hover:scale-100 transition-transform"
                 >
-                  Enquire on WhatsApp
-                </a>
-              </Button>
-            )}
+                  <Palette className="w-5 h-5 mr-2" />
+                  Customize Now
+                </Button>
+              </CustomizationDialog>
+            </div>
+          </div>
+
+          {/* Product Details */}
+          <div className="p-6 space-y-4">
+            {/* Header */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <h3 className="font-bold text-lg">{product.name}</h3>
+                <span className="text-sm font-semibold text-muted-foreground">
+                  {product.size}
+                </span>
+              </div>
+              <p className="text-sm text-muted-foreground line-clamp-2">
+                {product.description}
+              </p>
+            </div>
+
+            {/* Key Features */}
+            <div className="flex flex-wrap gap-1.5">
+              {product.features.slice(0, 2).map((feature, idx) => (
+                <Badge 
+                  key={idx} 
+                  variant="outline" 
+                  className="text-xs"
+                >
+                  <CheckCircle2 className="w-3 h-3 mr-1" />
+                  {feature}
+                </Badge>
+              ))}
+            </div>
+
+            {/* Business Info */}
+            <div className="grid grid-cols-2 gap-3 pt-2 border-t">
+              <div className="flex items-center gap-2 text-xs">
+                <Clock className="w-4 h-4 text-primary" />
+                <div>
+                  <p className="text-muted-foreground">Delivery</p>
+                  <p className="font-semibold">{product.deliveryDays}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                <Package className="w-4 h-4 text-accent" />
+                <div>
+                  <p className="text-muted-foreground">Print Options</p>
+                  <p className="font-semibold">{product.printingOptions.length}+</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Price & Actions */}
+            <div className="space-y-3 pt-2">
+              <div className="flex items-baseline justify-between">
+                <div>
+                  <p className="text-xs text-muted-foreground">Starting from</p>
+                  <p className="text-3xl font-bold">
+                    <span className="text-gradient">₹{product.price}</span>
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-muted-foreground">per unit</p>
+                  <Badge variant="secondary" className="mt-1">
+                    Bulk discounts available
+                  </Badge>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-2">
+                <CustomizationDialog product={product}>
+                  <Button 
+                    variant="outline"
+                    className="flex-1 group/btn border-2 hover:border-primary"
+                  >
+                    <Sparkles className="w-4 h-4 mr-2 group-hover/btn:text-primary transition-colors" />
+                    Customize
+                  </Button>
+                </CustomizationDialog>
+
+                {user ? (
+                  <Button
+                    ref={magneticRef}
+                    onClick={() => navigate("/dashboard")}
+                    className="flex-1 magnetic-area bg-gradient-to-r from-primary via-accent to-secondary hover:shadow-glow text-white"
+                  >
+                    Order Now
+                  </Button>
+                ) : (
+                  <Button
+                    ref={magneticRef}
+                    asChild
+                    className="flex-1 magnetic-area bg-gradient-to-r from-primary via-accent to-secondary hover:shadow-glow text-white"
+                  >
+                    <a
+                      href={`https://wa.me/919834711168?text=Hello%20Gajanan%20Bioplast,%20I%20want%20to%20enquire%20about%20${encodeURIComponent(
+                        product.name
+                      )}%20(${product.size})%20with%20custom%20printing.%20Price:%20₹${product.price}.`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Get Quote
+                    </a>
+                  </Button>
+                )}
+              </div>
+            </div>
           </div>
         </CardContent>
       </div>

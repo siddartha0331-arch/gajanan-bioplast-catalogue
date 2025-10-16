@@ -4,11 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, Package, Users } from "lucide-react";
+import { LogOut, Package, Users, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import OrdersList from "./OrdersList";
 import AdminStats from "./AdminStats";
+import ProductManagement from "./ProductManagement";
 
 interface AdminDashboardProps {
   user: User;
@@ -55,6 +56,10 @@ const AdminDashboard = ({ user }: AdminDashboardProps) => {
               <Package className="mr-2 h-4 w-4" />
               All Orders
             </TabsTrigger>
+            <TabsTrigger value="products">
+              <ShoppingCart className="mr-2 h-4 w-4" />
+              Products
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="stats" className="mt-6">
@@ -63,6 +68,10 @@ const AdminDashboard = ({ user }: AdminDashboardProps) => {
 
           <TabsContent value="orders" className="mt-6">
             <OrdersList userId={user.id} isAdmin={true} />
+          </TabsContent>
+
+          <TabsContent value="products" className="mt-6">
+            <ProductManagement />
           </TabsContent>
         </Tabs>
       </div>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +13,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Plus, Edit, Trash2, Upload, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { products } from "@/data/products";
 
@@ -30,49 +31,114 @@ const ProductManagement = () => {
   const [productList, setProductList] = useState<Product[]>(products);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>("");
 
-  const handleAddProduct = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    
-    const newProduct: Product = {
-      id: `custom-${Date.now()}`,
-      name: formData.get("name") as string,
-      type: formData.get("type") as string,
-      size: formData.get("size") as string,
-      price: Number(formData.get("price")),
-      description: formData.get("description") as string,
-      image: formData.get("image") as string || "/placeholder.svg",
-    };
+  const uploadImage = async (file: File): Promise<string> => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random()}.${fileExt}`;
+    const filePath = `${fileName}`;
 
-    setProductList([...productList, newProduct]);
-    toast.success("Product added successfully!");
-    setIsDialogOpen(false);
-    e.currentTarget.reset();
+    const { error: uploadError } = await supabase.storage
+      .from('product-images')
+      .upload(filePath, file);
+
+    if (uploadError) {
+      throw uploadError;
+    }
+
+    const { data } = supabase.storage
+      .from('product-images')
+      .getPublicUrl(filePath);
+
+    return data.publicUrl;
   };
 
-  const handleEditProduct = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleAddProduct = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setUploading(true);
+
+    try {
+      const formData = new FormData(e.currentTarget);
+      
+      let imageUrl = "/placeholder.svg";
+      if (selectedFile) {
+        imageUrl = await uploadImage(selectedFile);
+      }
+
+      const newProduct: Product = {
+        id: `custom-${Date.now()}`,
+        name: formData.get("name") as string,
+        type: formData.get("type") as string,
+        size: formData.get("size") as string,
+        price: Number(formData.get("price")),
+        description: formData.get("description") as string,
+        image: imageUrl,
+      };
+
+      setProductList([...productList, newProduct]);
+      toast.success("Product added successfully!");
+      setIsDialogOpen(false);
+      setSelectedFile(null);
+      setPreviewUrl("");
+      e.currentTarget.reset();
+    } catch (error: any) {
+      toast.error(error.message || "Error adding product");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleEditProduct = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!editingProduct) return;
 
-    const formData = new FormData(e.currentTarget);
-    
-    const updatedProduct: Product = {
-      ...editingProduct,
-      name: formData.get("name") as string,
-      type: formData.get("type") as string,
-      size: formData.get("size") as string,
-      price: Number(formData.get("price")),
-      description: formData.get("description") as string,
-      image: formData.get("image") as string || editingProduct.image,
-    };
+    setUploading(true);
 
-    setProductList(productList.map(p => 
-      p.id === editingProduct.id ? updatedProduct : p
-    ));
-    toast.success("Product updated successfully!");
-    setEditingProduct(null);
-    setIsDialogOpen(false);
+    try {
+      const formData = new FormData(e.currentTarget);
+      
+      let imageUrl = editingProduct.image;
+      if (selectedFile) {
+        imageUrl = await uploadImage(selectedFile);
+      }
+
+      const updatedProduct: Product = {
+        ...editingProduct,
+        name: formData.get("name") as string,
+        type: formData.get("type") as string,
+        size: formData.get("size") as string,
+        price: Number(formData.get("price")),
+        description: formData.get("description") as string,
+        image: imageUrl,
+      };
+
+      setProductList(productList.map(p => 
+        p.id === editingProduct.id ? updatedProduct : p
+      ));
+      toast.success("Product updated successfully!");
+      setEditingProduct(null);
+      setIsDialogOpen(false);
+      setSelectedFile(null);
+      setPreviewUrl("");
+    } catch (error: any) {
+      toast.error(error.message || "Error updating product");
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleDeleteProduct = (id: string) => {
@@ -84,11 +150,15 @@ const ProductManagement = () => {
 
   const openEditDialog = (product: Product) => {
     setEditingProduct(product);
+    setSelectedFile(null);
+    setPreviewUrl("");
     setIsDialogOpen(true);
   };
 
   const openAddDialog = () => {
     setEditingProduct(null);
+    setSelectedFile(null);
+    setPreviewUrl("");
     setIsDialogOpen(true);
   };
 
@@ -177,14 +247,25 @@ const ProductManagement = () => {
               </div>
 
               <div>
-                <Label htmlFor="image">Image URL</Label>
-                <Input
-                  id="image"
-                  name="image"
-                  defaultValue={editingProduct?.image}
-                  placeholder="/placeholder.svg"
-                  className="mt-2"
-                />
+                <Label htmlFor="image">Product Image</Label>
+                <div className="mt-2 space-y-4">
+                  <Input
+                    id="image"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="cursor-pointer"
+                  />
+                  {(previewUrl || editingProduct?.image) && (
+                    <div className="relative w-full aspect-video bg-muted rounded-lg overflow-hidden">
+                      <img 
+                        src={previewUrl || editingProduct?.image} 
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="flex gap-2 justify-end">
@@ -192,11 +273,25 @@ const ProductManagement = () => {
                   type="button"
                   variant="outline"
                   onClick={() => setIsDialogOpen(false)}
+                  disabled={uploading}
                 >
                   Cancel
                 </Button>
-                <Button type="submit" className="bg-gradient-to-r from-primary to-accent">
-                  {editingProduct ? "Update" : "Add"} Product
+                <Button 
+                  type="submit" 
+                  className="bg-gradient-to-r from-primary to-accent"
+                  disabled={uploading}
+                >
+                  {uploading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    <>
+                      {editingProduct ? "Update" : "Add"} Product
+                    </>
+                  )}
                 </Button>
               </div>
             </form>

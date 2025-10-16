@@ -47,6 +47,8 @@ export type Database = {
       orders: {
         Row: {
           created_at: string | null
+          delivery_days: number | null
+          expected_completion_date: string | null
           id: string
           notes: string | null
           price_per_unit: number
@@ -61,6 +63,8 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          delivery_days?: number | null
+          expected_completion_date?: string | null
           id?: string
           notes?: string | null
           price_per_unit: number
@@ -75,6 +79,8 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          delivery_days?: number | null
+          expected_completion_date?: string | null
           id?: string
           notes?: string | null
           price_per_unit?: number

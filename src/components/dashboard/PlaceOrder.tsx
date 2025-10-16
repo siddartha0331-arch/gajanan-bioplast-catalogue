@@ -22,6 +22,7 @@ interface PlaceOrderProps {
 const PlaceOrder = ({ userId }: PlaceOrderProps) => {
   const [selectedProduct, setSelectedProduct] = useState<string>("");
   const [quantity, setQuantity] = useState<number>(1);
+  const [deliveryDays, setDeliveryDays] = useState<number>(7);
   const [notes, setNotes] = useState<string>("");
   const [loading, setLoading] = useState(false);
 
@@ -34,6 +35,8 @@ const PlaceOrder = ({ userId }: PlaceOrderProps) => {
     setLoading(true);
 
     const totalPrice = product.price * quantity;
+    const expectedCompletionDate = new Date();
+    expectedCompletionDate.setDate(expectedCompletionDate.getDate() + deliveryDays);
 
     const { error } = await supabase.from("orders").insert({
       user_id: userId,
@@ -43,6 +46,8 @@ const PlaceOrder = ({ userId }: PlaceOrderProps) => {
       quantity,
       price_per_unit: product.price,
       total_price: totalPrice,
+      delivery_days: deliveryDays,
+      expected_completion_date: expectedCompletionDate.toISOString(),
       notes: notes.trim() || null,
     });
 
@@ -52,6 +57,7 @@ const PlaceOrder = ({ userId }: PlaceOrderProps) => {
       toast.success("Order placed successfully!");
       setSelectedProduct("");
       setQuantity(1);
+      setDeliveryDays(7);
       setNotes("");
     }
 
@@ -103,6 +109,23 @@ const PlaceOrder = ({ userId }: PlaceOrderProps) => {
               required
               className="mt-2"
             />
+          </div>
+
+          <div>
+            <Label htmlFor="deliveryDays">Expected Delivery Days</Label>
+            <Input
+              id="deliveryDays"
+              type="number"
+              min="1"
+              max="365"
+              value={deliveryDays}
+              onChange={(e) => setDeliveryDays(Number(e.target.value))}
+              required
+              className="mt-2"
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              Expected completion: {new Date(Date.now() + deliveryDays * 24 * 60 * 60 * 1000).toLocaleDateString()}
+            </p>
           </div>
 
           {product && (

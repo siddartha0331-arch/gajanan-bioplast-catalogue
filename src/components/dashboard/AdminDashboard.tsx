@@ -31,7 +31,7 @@ const AdminDashboard = ({ user }: AdminDashboardProps) => {
   return (
     <div className="min-h-screen bg-muted/30 py-8">
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
               Admin Dashboard
@@ -40,7 +40,7 @@ const AdminDashboard = ({ user }: AdminDashboardProps) => {
               Manage orders and view statistics
             </p>
           </div>
-          <Button variant="outline" onClick={handleSignOut}>
+          <Button variant="outline" onClick={handleSignOut} className="shrink-0">
             <LogOut className="mr-2 h-4 w-4" />
             Sign Out
           </Button>

@@ -28,12 +28,33 @@ interface Product {
 }
 
 const ProductManagement = () => {
-  const [productList, setProductList] = useState<Product[]>(products);
+  const [productList, setProductList] = useState<Product[]>([]);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setProductList(data || []);
+    } catch (error: any) {
+      toast.error(error.message || "Error fetching products");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const uploadImage = async (file: File): Promise<string> => {
     const fileExt = file.name.split('.').pop();
@@ -79,17 +100,22 @@ const ProductManagement = () => {
         imageUrl = await uploadImage(selectedFile);
       }
 
-      const newProduct: Product = {
-        id: `custom-${Date.now()}`,
-        name: formData.get("name") as string,
-        type: formData.get("type") as string,
-        size: formData.get("size") as string,
-        price: Number(formData.get("price")),
-        description: formData.get("description") as string,
-        image: imageUrl,
-      };
+      const { data, error } = await supabase
+        .from('products')
+        .insert([{
+          name: formData.get("name") as string,
+          type: formData.get("type") as string,
+          size: formData.get("size") as string,
+          price: Number(formData.get("price")),
+          description: formData.get("description") as string,
+          image: imageUrl,
+        }])
+        .select()
+        .single();
 
-      setProductList([...productList, newProduct]);
+      if (error) throw error;
+
+      setProductList([data, ...productList]);
       toast.success("Product added successfully!");
       setIsDialogOpen(false);
       setSelectedFile(null);
@@ -116,18 +142,24 @@ const ProductManagement = () => {
         imageUrl = await uploadImage(selectedFile);
       }
 
-      const updatedProduct: Product = {
-        ...editingProduct,
-        name: formData.get("name") as string,
-        type: formData.get("type") as string,
-        size: formData.get("size") as string,
-        price: Number(formData.get("price")),
-        description: formData.get("description") as string,
-        image: imageUrl,
-      };
+      const { data, error } = await supabase
+        .from('products')
+        .update({
+          name: formData.get("name") as string,
+          type: formData.get("type") as string,
+          size: formData.get("size") as string,
+          price: Number(formData.get("price")),
+          description: formData.get("description") as string,
+          image: imageUrl,
+        })
+        .eq('id', editingProduct.id)
+        .select()
+        .single();
+
+      if (error) throw error;
 
       setProductList(productList.map(p => 
-        p.id === editingProduct.id ? updatedProduct : p
+        p.id === editingProduct.id ? data : p
       ));
       toast.success("Product updated successfully!");
       setEditingProduct(null);
@@ -141,10 +173,21 @@ const ProductManagement = () => {
     }
   };
 
-  const handleDeleteProduct = (id: string) => {
+  const handleDeleteProduct = async (id: string) => {
     if (confirm("Are you sure you want to delete this product?")) {
-      setProductList(productList.filter(p => p.id !== id));
-      toast.success("Product deleted successfully!");
+      try {
+        const { error } = await supabase
+          .from('products')
+          .delete()
+          .eq('id', id);
+
+        if (error) throw error;
+
+        setProductList(productList.filter(p => p.id !== id));
+        toast.success("Product deleted successfully!");
+      } catch (error: any) {
+        toast.error(error.message || "Error deleting product");
+      }
     }
   };
 
@@ -161,6 +204,14 @@ const ProductManagement = () => {
     setPreviewUrl("");
     setIsDialogOpen(true);
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

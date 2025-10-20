@@ -118,102 +118,138 @@ const Auth = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/30 py-12 px-4">
-      <Card className="w-full max-w-md border-none shadow-xl">
-        <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            Welcome
-          </CardTitle>
-          <CardDescription>Sign in or create an account to place orders</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="signin" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Sign In</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="signin">
-              <form onSubmit={handleSignIn} className="space-y-4 mt-4">
-                <div>
-                  <Label htmlFor="signin-email">Email</Label>
-                  <Input
-                    id="signin-email"
-                    name="email"
-                    type="email"
-                    placeholder="your@email.com"
-                    required
-                    className="mt-2"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="signin-password">Password</Label>
-                  <Input
-                    id="signin-password"
-                    name="password"
-                    type="password"
-                    placeholder="••••••••"
-                    required
-                    className="mt-2"
-                  />
-                </div>
-                <Button
-                  type="submit"
-                  className="w-full bg-gradient-to-r from-primary to-accent"
-                  disabled={loading}
+    <div className="min-h-screen relative overflow-hidden flex items-center justify-center py-12 px-4">
+      {/* Animated mesh background */}
+      <div className="absolute inset-0 bg-mesh animate-diagonal-slide opacity-60" />
+      
+      {/* Morphing shapes */}
+      <div className="absolute top-20 left-10 w-96 h-96 bg-gradient-primary opacity-20 animate-morph blur-3xl" />
+      <div className="absolute bottom-20 right-10 w-80 h-80 bg-gradient-accent opacity-20 animate-morph blur-3xl" style={{ animationDelay: '4s' }} />
+      
+      {/* Glass card with brutal shadow */}
+      <div className="relative w-full max-w-md">
+        <Card className="card-glass border-2 border-primary/20 overflow-hidden backdrop-blur-xl">
+          <CardHeader className="text-center space-y-4 pb-8 pt-10">
+            <div className="relative inline-block">
+              <h1 className="text-5xl font-black text-gradient tracking-tighter">
+                Welcome Back
+              </h1>
+              <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-primary rounded-full" />
+            </div>
+            <CardDescription className="text-base text-foreground/70">
+              Enter the future of bag ordering
+            </CardDescription>
+          </CardHeader>
+          
+          <CardContent className="pb-10">
+            <Tabs defaultValue="signin" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 p-1.5 bg-muted/50 backdrop-blur-sm border border-primary/10">
+                <TabsTrigger 
+                  value="signin"
+                  className="data-[state=active]:bg-gradient-primary data-[state=active]:text-white transition-all duration-300"
                 >
-                  {loading ? "Signing in..." : "Sign In"}
-                </Button>
-              </form>
-            </TabsContent>
-
-            <TabsContent value="signup">
-              <form onSubmit={handleSignUp} className="space-y-4 mt-4">
-                <div>
-                  <Label htmlFor="signup-name">Full Name</Label>
-                  <Input
-                    id="signup-name"
-                    name="full_name"
-                    type="text"
-                    placeholder="Your Name"
-                    required
-                    className="mt-2"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="signup-email">Email</Label>
-                  <Input
-                    id="signup-email"
-                    name="email"
-                    type="email"
-                    placeholder="your@email.com"
-                    required
-                    className="mt-2"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="signup-password">Password</Label>
-                  <Input
-                    id="signup-password"
-                    name="password"
-                    type="password"
-                    placeholder="••••••••"
-                    required
-                    className="mt-2"
-                  />
-                </div>
-                <Button
-                  type="submit"
-                  className="w-full bg-gradient-to-r from-primary to-accent"
-                  disabled={loading}
+                  Sign In
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="signup"
+                  className="data-[state=active]:bg-gradient-primary data-[state=active]:text-white transition-all duration-300"
                 >
-                  {loading ? "Creating account..." : "Sign Up"}
-                </Button>
-              </form>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+                  Sign Up
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="signin" className="mt-8">
+                <form onSubmit={handleSignIn} className="space-y-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="signin-email" className="text-sm font-semibold text-foreground/90">
+                      Email Address
+                    </Label>
+                    <Input
+                      id="signin-email"
+                      name="email"
+                      type="email"
+                      placeholder="your@email.com"
+                      required
+                      className="h-12 bg-background/50 border-primary/20 focus:border-primary transition-all duration-300 focus:shadow-glow"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="signin-password" className="text-sm font-semibold text-foreground/90">
+                      Password
+                    </Label>
+                    <Input
+                      id="signin-password"
+                      name="password"
+                      type="password"
+                      placeholder="••••••••"
+                      required
+                      className="h-12 bg-background/50 border-primary/20 focus:border-primary transition-all duration-300 focus:shadow-glow"
+                    />
+                  </div>
+                  <Button
+                    type="submit"
+                    className="w-full h-12 text-base font-bold bg-gradient-primary hover:shadow-morph transition-all duration-500 hover:scale-105"
+                    disabled={loading}
+                  >
+                    {loading ? "Signing in..." : "Sign In →"}
+                  </Button>
+                </form>
+              </TabsContent>
+
+              <TabsContent value="signup" className="mt-8">
+                <form onSubmit={handleSignUp} className="space-y-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-name" className="text-sm font-semibold text-foreground/90">
+                      Full Name
+                    </Label>
+                    <Input
+                      id="signup-name"
+                      name="full_name"
+                      type="text"
+                      placeholder="Your Name"
+                      required
+                      className="h-12 bg-background/50 border-primary/20 focus:border-primary transition-all duration-300 focus:shadow-glow"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-email" className="text-sm font-semibold text-foreground/90">
+                      Email Address
+                    </Label>
+                    <Input
+                      id="signup-email"
+                      name="email"
+                      type="email"
+                      placeholder="your@email.com"
+                      required
+                      className="h-12 bg-background/50 border-primary/20 focus:border-primary transition-all duration-300 focus:shadow-glow"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-password" className="text-sm font-semibold text-foreground/90">
+                      Password
+                    </Label>
+                    <Input
+                      id="signup-password"
+                      name="password"
+                      type="password"
+                      placeholder="••••••••"
+                      required
+                      className="h-12 bg-background/50 border-primary/20 focus:border-primary transition-all duration-300 focus:shadow-glow"
+                    />
+                  </div>
+                  <Button
+                    type="submit"
+                    className="w-full h-12 text-base font-bold bg-gradient-primary hover:shadow-morph transition-all duration-500 hover:scale-105"
+                    disabled={loading}
+                  >
+                    {loading ? "Creating account..." : "Create Account →"}
+                  </Button>
+                </form>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

@@ -4,12 +4,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, ShoppingBag, Settings, Package } from "lucide-react";
+import { LogOut, ShoppingBag, Settings, Package, User as UserIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import OrdersList from "./OrdersList";
 import PlaceOrder from "./PlaceOrder";
 import CustomerPreferences from "./CustomerPreferences";
+import CustomerProfile from "./CustomerProfile";
 
 interface CustomerDashboardProps {
   user: User;
@@ -62,7 +63,7 @@ const CustomerDashboard = ({ user }: CustomerDashboardProps) => {
         </div>
 
         <Tabs defaultValue="orders" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 max-w-md">
+          <TabsList className="grid w-full grid-cols-4 max-w-2xl">
             <TabsTrigger value="orders">
               <Package className="mr-2 h-4 w-4" />
               My Orders
@@ -70,6 +71,10 @@ const CustomerDashboard = ({ user }: CustomerDashboardProps) => {
             <TabsTrigger value="new">
               <ShoppingBag className="mr-2 h-4 w-4" />
               Place Order
+            </TabsTrigger>
+            <TabsTrigger value="profile">
+              <UserIcon className="mr-2 h-4 w-4" />
+              Profile
             </TabsTrigger>
             <TabsTrigger value="preferences">
               <Settings className="mr-2 h-4 w-4" />
@@ -83,6 +88,10 @@ const CustomerDashboard = ({ user }: CustomerDashboardProps) => {
 
           <TabsContent value="new" className="mt-6">
             <PlaceOrder userId={user.id} />
+          </TabsContent>
+
+          <TabsContent value="profile" className="mt-6">
+            <CustomerProfile userId={user.id} />
           </TabsContent>
 
           <TabsContent value="preferences" className="mt-6">

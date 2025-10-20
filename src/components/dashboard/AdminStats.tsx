@@ -3,7 +3,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Package, ShoppingCart, CheckCircle, Users } from "lucide-react";
 
-const AdminStats = () => {
+interface AdminStatsProps {
+  onNavigate: (tab: string) => void;
+}
+
+const AdminStats = ({ onNavigate }: AdminStatsProps) => {
   const [stats, setStats] = useState({
     totalOrders: 0,
     pendingOrders: 0,
@@ -53,6 +57,7 @@ const AdminStats = () => {
       icon: ShoppingCart,
       color: "text-blue-500",
       bg: "bg-blue-500/10",
+      action: "orders",
     },
     {
       title: "Pending Orders",
@@ -60,6 +65,7 @@ const AdminStats = () => {
       icon: Package,
       color: "text-yellow-500",
       bg: "bg-yellow-500/10",
+      action: "orders",
     },
     {
       title: "Completed Orders",
@@ -67,6 +73,7 @@ const AdminStats = () => {
       icon: CheckCircle,
       color: "text-green-500",
       bg: "bg-green-500/10",
+      action: "orders",
     },
     {
       title: "Total Customers",
@@ -74,6 +81,7 @@ const AdminStats = () => {
       icon: Users,
       color: "text-purple-500",
       bg: "bg-purple-500/10",
+      action: "orders",
     },
   ];
 
@@ -82,7 +90,11 @@ const AdminStats = () => {
       {statCards.map((stat) => {
         const Icon = stat.icon;
         return (
-          <Card key={stat.title} className="border-none shadow-lg">
+          <Card 
+            key={stat.title} 
+            className="border-none shadow-lg cursor-pointer transition-all hover:shadow-xl hover:scale-105"
+            onClick={() => onNavigate(stat.action)}
+          >
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 {stat.title}
@@ -95,6 +107,7 @@ const AdminStats = () => {
               <div className={`text-3xl font-bold ${stat.color}`}>
                 {stat.value}
               </div>
+              <p className="text-xs text-muted-foreground mt-2">Click to view details</p>
             </CardContent>
           </Card>
         );

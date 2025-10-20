@@ -17,6 +17,7 @@ interface AdminDashboardProps {
 
 const AdminDashboard = ({ user }: AdminDashboardProps) => {
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("stats");
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -46,7 +47,7 @@ const AdminDashboard = ({ user }: AdminDashboardProps) => {
           </Button>
         </div>
 
-        <Tabs defaultValue="stats" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList>
             <TabsTrigger value="stats">
               <Users className="mr-2 h-4 w-4" />
@@ -63,7 +64,7 @@ const AdminDashboard = ({ user }: AdminDashboardProps) => {
           </TabsList>
 
           <TabsContent value="stats" className="mt-6">
-            <AdminStats />
+            <AdminStats onNavigate={setActiveTab} />
           </TabsContent>
 
           <TabsContent value="orders" className="mt-6">

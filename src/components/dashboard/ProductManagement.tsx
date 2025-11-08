@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Plus, Edit, Trash2, Upload, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { products } from "@/data/products";
+import { Badge } from "@/components/ui/badge";
 
 interface Product {
   id: string;
@@ -25,6 +25,10 @@ interface Product {
   price: number;
   description: string;
   image: string;
+  moq: number;
+  delivery_days: string;
+  features: string[];
+  printing_options: string[];
 }
 
 const ProductManagement = () => {
@@ -100,6 +104,9 @@ const ProductManagement = () => {
         imageUrl = await uploadImage(selectedFile);
       }
 
+      const featuresStr = formData.get("features") as string;
+      const printingStr = formData.get("printing_options") as string;
+      
       const { data, error } = await supabase
         .from('products')
         .insert([{
@@ -109,6 +116,10 @@ const ProductManagement = () => {
           price: Number(formData.get("price")),
           description: formData.get("description") as string,
           image: imageUrl,
+          moq: Number(formData.get("moq")) || 1000,
+          delivery_days: formData.get("delivery_days") as string || "7-10 days",
+          features: featuresStr ? featuresStr.split(',').map(f => f.trim()) : [],
+          printing_options: printingStr ? printingStr.split(',').map(p => p.trim()) : [],
         }])
         .select()
         .single();
@@ -142,6 +153,9 @@ const ProductManagement = () => {
         imageUrl = await uploadImage(selectedFile);
       }
 
+      const featuresStr = formData.get("features") as string;
+      const printingStr = formData.get("printing_options") as string;
+      
       const { data, error } = await supabase
         .from('products')
         .update({
@@ -151,6 +165,10 @@ const ProductManagement = () => {
           price: Number(formData.get("price")),
           description: formData.get("description") as string,
           image: imageUrl,
+          moq: Number(formData.get("moq")) || 1000,
+          delivery_days: formData.get("delivery_days") as string || "7-10 days",
+          features: featuresStr ? featuresStr.split(',').map(f => f.trim()) : [],
+          printing_options: printingStr ? printingStr.split(',').map(p => p.trim()) : [],
         })
         .eq('id', editingProduct.id)
         .select()
@@ -285,6 +303,31 @@ const ProductManagement = () => {
                 </div>
               </div>
 
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="moq">MOQ</Label>
+                  <Input
+                    id="moq"
+                    name="moq"
+                    type="number"
+                    min="1"
+                    defaultValue={editingProduct?.moq || 1000}
+                    required
+                    className="mt-2"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="delivery_days">Delivery Days</Label>
+                  <Input
+                    id="delivery_days"
+                    name="delivery_days"
+                    defaultValue={editingProduct?.delivery_days || "7-10 days"}
+                    required
+                    className="mt-2"
+                  />
+                </div>
+              </div>
+
               <div>
                 <Label htmlFor="description">Description</Label>
                 <Textarea
@@ -294,6 +337,30 @@ const ProductManagement = () => {
                   required
                   className="mt-2"
                   rows={3}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="features">Features (comma-separated)</Label>
+                <Textarea
+                  id="features"
+                  name="features"
+                  defaultValue={editingProduct?.features?.join(', ')}
+                  placeholder="Eco-friendly, Reusable, Strong handles"
+                  className="mt-2"
+                  rows={2}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="printing_options">Printing Options (comma-separated)</Label>
+                <Textarea
+                  id="printing_options"
+                  name="printing_options"
+                  defaultValue={editingProduct?.printing_options?.join(', ')}
+                  placeholder="Screen Printing, Flexo Printing, Digital Print"
+                  className="mt-2"
+                  rows={2}
                 />
               </div>
 
@@ -371,7 +438,19 @@ const ProductManagement = () => {
                 <p className="text-sm text-muted-foreground">
                   Type: {product.type} • Size: {product.size}
                 </p>
+                <p className="text-sm text-muted-foreground">
+                  MOQ: {product.moq} • Delivery: {product.delivery_days}
+                </p>
                 <p className="text-sm line-clamp-2">{product.description}</p>
+                {product.features && product.features.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {product.features.slice(0, 3).map((feature, idx) => (
+                      <Badge key={idx} variant="secondary" className="text-xs">
+                        {feature}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
               </div>
               <div className="flex gap-2">
                 <Button

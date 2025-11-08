@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { products, Product } from "@/data/products";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
@@ -14,8 +13,23 @@ import {
   Package, 
   Clock, 
   CheckCircle2,
-  Sparkles 
+  Sparkles,
+  Loader2
 } from "lucide-react";
+
+interface Product {
+  id: string;
+  name: string;
+  type: string;
+  size: string;
+  price: number;
+  image: string;
+  description: string;
+  moq: number;
+  delivery_days: string;
+  printing_options: string[];
+  features: string[];
+}
 
 const ProductCard = ({ product, index, user, navigate }: { 
   product: Product; 
@@ -89,16 +103,18 @@ const ProductCard = ({ product, index, user, navigate }: {
 
             {/* Key Features */}
             <div className="flex flex-wrap gap-1.5">
-              {product.features.slice(0, 2).map((feature, idx) => (
-                <Badge 
-                  key={idx} 
-                  variant="outline" 
-                  className="text-xs"
-                >
-                  <CheckCircle2 className="w-3 h-3 mr-1" />
-                  {feature}
-                </Badge>
-              ))}
+              {product.features && product.features.length > 0 ? (
+                product.features.slice(0, 2).map((feature, idx) => (
+                  <Badge 
+                    key={idx} 
+                    variant="outline" 
+                    className="text-xs"
+                  >
+                    <CheckCircle2 className="w-3 h-3 mr-1" />
+                    {feature}
+                  </Badge>
+                ))
+              ) : null}
             </div>
 
             {/* Business Info */}
@@ -107,14 +123,14 @@ const ProductCard = ({ product, index, user, navigate }: {
                 <Clock className="w-4 h-4 text-primary" />
                 <div>
                   <p className="text-muted-foreground">Delivery</p>
-                  <p className="font-semibold">{product.deliveryDays}</p>
+                  <p className="font-semibold">{product.delivery_days}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2 text-xs">
                 <Package className="w-4 h-4 text-accent" />
                 <div>
                   <p className="text-muted-foreground">Print Options</p>
-                  <p className="font-semibold">{product.printingOptions.length}+</p>
+                  <p className="font-semibold">{product.printing_options?.length || 0}+</p>
                 </div>
               </div>
             </div>
@@ -185,6 +201,8 @@ const ProductCard = ({ product, index, user, navigate }: {
 const Products = () => {
   const [selectedType, setSelectedType] = useState<string>("All");
   const [user, setUser] = useState<User | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -199,12 +217,40 @@ const Products = () => {
     return () => subscription.unsubscribe();
   }, []);
 
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setProducts(data || []);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const types = ["All", "D Cut", "W Cut", "PP Woven", "BOPP"];
 
   const filteredProducts =
     selectedType === "All"
       ? products
       : products.filter((p) => p.type === selectedType);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen py-12">

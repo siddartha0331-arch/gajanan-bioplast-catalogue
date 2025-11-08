@@ -100,11 +100,13 @@ export type Database = {
           created_at: string
           delivery_days: string | null
           description: string
+          features: string[] | null
           id: string
           image: string
           moq: number | null
           name: string
           price: number
+          printing_options: string[] | null
           size: string
           type: string
           updated_at: string
@@ -113,11 +115,13 @@ export type Database = {
           created_at?: string
           delivery_days?: string | null
           description: string
+          features?: string[] | null
           id?: string
           image: string
           moq?: number | null
           name: string
           price: number
+          printing_options?: string[] | null
           size: string
           type: string
           updated_at?: string
@@ -126,11 +130,13 @@ export type Database = {
           created_at?: string
           delivery_days?: string | null
           description?: string
+          features?: string[] | null
           id?: string
           image?: string
           moq?: number | null
           name?: string
           price?: number
+          printing_options?: string[] | null
           size?: string
           type?: string
           updated_at?: string

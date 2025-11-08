@@ -1,0 +1,17 @@
+-- Add additional product fields for features and printing options
+ALTER TABLE public.products
+ADD COLUMN IF NOT EXISTS features TEXT[] DEFAULT '{}',
+ADD COLUMN IF NOT EXISTS printing_options TEXT[] DEFAULT '{}';
+
+-- Insert the initial product data from the hardcoded list
+INSERT INTO public.products (name, type, size, price, image, description, moq, delivery_days, printing_options, features)
+VALUES 
+  ('D Cut Non-Woven Bag', 'D Cut', '12x15', 350, 'https://uzrktxjnfghcrqebjmkr.supabase.co/storage/v1/object/public/product-images/dcut-bag.jpg', 'Eco-friendly D-cut non-woven shopping bag, perfect for retail and grocery stores.', 1000, '7-10 days', ARRAY['Screen Printing', 'Flexo Printing', 'Digital Print'], ARRAY['Eco-friendly material', 'Reusable', 'Custom colors available', 'Strong handles']),
+  ('D Cut Non-Woven Bag', 'D Cut', '15x18', 420, 'https://uzrktxjnfghcrqebjmkr.supabase.co/storage/v1/object/public/product-images/dcut-bag.jpg', 'Durable D-cut bag with reinforced handles for heavy-duty use.', 1000, '7-10 days', ARRAY['Screen Printing', 'Flexo Printing', 'Digital Print'], ARRAY['Heavy-duty', 'Reinforced handles', 'Custom branding', 'UV resistant']),
+  ('W Cut Non-Woven Bag', 'W Cut', '12x15', 320, 'https://uzrktxjnfghcrqebjmkr.supabase.co/storage/v1/object/public/product-images/wcut-bag.jpg', 'Classic W-cut design, ideal for boutiques and gift shops.', 1500, '5-8 days', ARRAY['Screen Printing', 'Digital Print'], ARRAY['Lightweight', 'Cost-effective', 'Multiple colors', 'Quick turnaround']),
+  ('W Cut Non-Woven Bag', 'W Cut', '15x18', 380, 'https://uzrktxjnfghcrqebjmkr.supabase.co/storage/v1/object/public/product-images/wcut-bag.jpg', 'Spacious W-cut bag with excellent load-bearing capacity.', 1500, '5-8 days', ARRAY['Screen Printing', 'Digital Print'], ARRAY['Spacious design', 'Load-bearing', 'Custom sizes', 'Bulk discounts']),
+  ('PP Woven Bag', 'PP Woven', '15x21', 450, 'https://uzrktxjnfghcrqebjmkr.supabase.co/storage/v1/object/public/product-images/pp-bag.jpg', 'Heavy-duty PP woven bag for packaging and industrial use.', 2000, '10-14 days', ARRAY['Laminated Print', 'BOPP Lamination'], ARRAY['Industrial strength', 'Water-resistant', 'Custom lamination', 'UV protected']),
+  ('PP Woven Bag', 'PP Woven', '18x24', 550, 'https://uzrktxjnfghcrqebjmkr.supabase.co/storage/v1/object/public/product-images/pp-bag.jpg', 'Large PP woven bag suitable for bulk packaging and transportation.', 2000, '10-14 days', ARRAY['Laminated Print', 'BOPP Lamination'], ARRAY['Extra large', 'Tear-resistant', 'Heavy load capacity', 'Long-lasting']),
+  ('BOPP Laminated Bag', 'BOPP', '12x15', 480, 'https://uzrktxjnfghcrqebjmkr.supabase.co/storage/v1/object/public/product-images/bopp-bag.jpg', 'Premium BOPP laminated bag with glossy finish for branding.', 1000, '12-15 days', ARRAY['Full Color BOPP Print', 'Glossy Finish', 'Matte Finish'], ARRAY['Premium finish', 'Vibrant colors', 'Brand enhancement', 'Glossy/Matte options']),
+  ('BOPP Laminated Bag', 'BOPP', '15x18', 580, 'https://uzrktxjnfghcrqebjmkr.supabase.co/storage/v1/object/public/product-images/bopp-bag.jpg', 'High-quality BOPP bag with vibrant printing capabilities.', 1000, '12-15 days', ARRAY['Full Color BOPP Print', 'Glossy Finish', 'Matte Finish'], ARRAY['High-quality print', 'Color accuracy', 'Professional look', 'Custom designs'])
+ON CONFLICT DO NOTHING;

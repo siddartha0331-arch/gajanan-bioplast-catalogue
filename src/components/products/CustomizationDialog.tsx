@@ -13,8 +13,21 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
-import { Product } from "@/data/products";
 import { Palette, Type, Image as ImageIcon, Sparkles } from "lucide-react";
+
+interface Product {
+  id: string;
+  name: string;
+  type: string;
+  size: string;
+  price: number;
+  image: string;
+  description: string;
+  moq: number;
+  delivery_days: string;
+  printing_options: string[];
+  features: string[];
+}
 
 interface CustomizationDialogProps {
   product: Product;
@@ -22,7 +35,7 @@ interface CustomizationDialogProps {
 }
 
 export const CustomizationDialog = ({ product, children }: CustomizationDialogProps) => {
-  const [printType, setPrintType] = useState(product.printingOptions[0]);
+  const [printType, setPrintType] = useState(product.printing_options?.[0] || "Screen Printing");
   const [quantity, setQuantity] = useState(product.moq);
   const [logoFile, setLogoFile] = useState<string>("");
   const [customText, setCustomText] = useState("");
@@ -86,7 +99,7 @@ export const CustomizationDialog = ({ product, children }: CustomizationDialogPr
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Delivery</span>
-                <Badge variant="outline">{product.deliveryDays}</Badge>
+                <Badge variant="outline">{product.delivery_days}</Badge>
               </div>
             </div>
           </div>
@@ -118,14 +131,18 @@ export const CustomizationDialog = ({ product, children }: CustomizationDialogPr
                 Printing Type
               </Label>
               <RadioGroup value={printType} onValueChange={setPrintType}>
-                {product.printingOptions.map((option) => (
-                  <div key={option} className="flex items-center space-x-2">
-                    <RadioGroupItem value={option} id={option} />
-                    <Label htmlFor={option} className="cursor-pointer">
-                      {option}
-                    </Label>
-                  </div>
-                ))}
+                {product.printing_options && product.printing_options.length > 0 ? (
+                  product.printing_options.map((option) => (
+                    <div key={option} className="flex items-center space-x-2">
+                      <RadioGroupItem value={option} id={option} />
+                      <Label htmlFor={option} className="cursor-pointer">
+                        {option}
+                      </Label>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground">No printing options available</p>
+                )}
               </RadioGroup>
             </div>
 

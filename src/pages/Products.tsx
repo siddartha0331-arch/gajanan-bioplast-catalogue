@@ -14,7 +14,9 @@ import {
   Clock, 
   CheckCircle2,
   Sparkles,
-  Loader2
+  Loader2,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 
 interface Product {
@@ -24,11 +26,19 @@ interface Product {
   size: string;
   price: number;
   image: string;
+  images: string[];
   description: string;
   moq: number;
   delivery_days: string;
   printing_options: string[];
   features: string[];
+  dimensions: {
+    width?: number;
+    height?: number;
+    depth?: number;
+    weight?: number;
+    unit?: string;
+  };
 }
 
 const ProductCard = ({ product, index, user, navigate }: { 
@@ -39,6 +49,19 @@ const ProductCard = ({ product, index, user, navigate }: {
 }) => {
   const tiltRef = useTiltEffect<HTMLDivElement>();
   const magneticRef = useMagneticHover<HTMLButtonElement>({ strength: 0.2 });
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  
+  const productImages = product.images && product.images.length > 0 
+    ? product.images 
+    : [product.image];
+
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % productImages.length);
+  };
+
+  const prevImage = () => {
+    setCurrentImageIndex((prev) => (prev - 1 + productImages.length) % productImages.length);
+  };
 
   return (
     <Card
@@ -52,11 +75,52 @@ const ProductCard = ({ product, index, user, navigate }: {
           {/* Product Image with Badge Overlay */}
           <div className="relative aspect-square overflow-hidden rounded-t-lg bg-muted image-shine">
             <img
-              src={product.image}
+              src={productImages[currentImageIndex]}
               alt={product.name}
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:rotate-2"
             />
             <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-accent/20 mix-blend-overlay opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            
+            {/* Image Navigation */}
+            {productImages.length > 1 && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 bg-black/50 hover:bg-black/70 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    prevImage();
+                  }}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 bg-black/50 hover:bg-black/70 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    nextImage();
+                  }}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+                {/* Image indicators */}
+                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+                  {productImages.map((_, idx) => (
+                    <div
+                      key={idx}
+                      className={`h-1.5 rounded-full transition-all ${
+                        idx === currentImageIndex 
+                          ? 'bg-white w-4' 
+                          : 'bg-white/50 w-1.5'
+                      }`}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
             
             {/* Premium Badge */}
             <div className="absolute top-4 right-4">
@@ -229,7 +293,7 @@ const Products = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setProducts(data || []);
+      setProducts((data || []) as Product[]);
     } catch (error) {
       console.error("Error fetching products:", error);
     } finally {

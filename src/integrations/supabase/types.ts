@@ -100,9 +100,11 @@ export type Database = {
           created_at: string
           delivery_days: string | null
           description: string
+          dimensions: Json | null
           features: string[] | null
           id: string
           image: string
+          images: string[] | null
           moq: number | null
           name: string
           price: number
@@ -115,9 +117,11 @@ export type Database = {
           created_at?: string
           delivery_days?: string | null
           description: string
+          dimensions?: Json | null
           features?: string[] | null
           id?: string
           image: string
+          images?: string[] | null
           moq?: number | null
           name: string
           price: number
@@ -130,9 +134,11 @@ export type Database = {
           created_at?: string
           delivery_days?: string | null
           description?: string
+          dimensions?: Json | null
           features?: string[] | null
           id?: string
           image?: string
+          images?: string[] | null
           moq?: number | null
           name?: string
           price?: number

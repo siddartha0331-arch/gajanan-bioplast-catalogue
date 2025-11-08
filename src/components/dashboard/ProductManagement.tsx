@@ -25,10 +25,18 @@ interface Product {
   price: number;
   description: string;
   image: string;
+  images: string[];
   moq: number;
   delivery_days: string;
   features: string[];
   printing_options: string[];
+  dimensions: {
+    width?: number;
+    height?: number;
+    depth?: number;
+    weight?: number;
+    unit?: string;
+  };
 }
 
 const ProductManagement = () => {
@@ -36,8 +44,8 @@ const ProductManagement = () => {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string>("");
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -52,7 +60,7 @@ const ProductManagement = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setProductList(data || []);
+      setProductList((data || []) as Product[]);
     } catch (error: any) {
       toast.error(error.message || "Error fetching products");
     } finally {
@@ -81,15 +89,28 @@ const ProductManagement = () => {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewUrl(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      setSelectedFiles(files);
+      
+      // Generate preview URLs for all selected files
+      const previews: string[] = [];
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          previews.push(reader.result as string);
+          if (previews.length === files.length) {
+            setPreviewUrls(previews);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
     }
+  };
+
+  const removePreviewImage = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+    setPreviewUrls(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleAddProduct = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -99,13 +120,26 @@ const ProductManagement = () => {
     try {
       const formData = new FormData(e.currentTarget);
       
-      let imageUrl = "/placeholder.svg";
-      if (selectedFile) {
-        imageUrl = await uploadImage(selectedFile);
+      // Upload all images
+      const imageUrls: string[] = [];
+      if (selectedFiles.length > 0) {
+        for (const file of selectedFiles) {
+          const url = await uploadImage(file);
+          imageUrls.push(url);
+        }
       }
 
       const featuresStr = formData.get("features") as string;
       const printingStr = formData.get("printing_options") as string;
+      
+      // Build dimensions object
+      const dimensions = {
+        width: Number(formData.get("width")) || undefined,
+        height: Number(formData.get("height")) || undefined,
+        depth: Number(formData.get("depth")) || undefined,
+        weight: Number(formData.get("weight")) || undefined,
+        unit: formData.get("unit") as string || "cm",
+      };
       
       const { data, error } = await supabase
         .from('products')
@@ -115,22 +149,24 @@ const ProductManagement = () => {
           size: formData.get("size") as string,
           price: Number(formData.get("price")),
           description: formData.get("description") as string,
-          image: imageUrl,
+          image: imageUrls[0] || "/placeholder.svg",
+          images: imageUrls,
           moq: Number(formData.get("moq")) || 1000,
           delivery_days: formData.get("delivery_days") as string || "7-10 days",
           features: featuresStr ? featuresStr.split(',').map(f => f.trim()) : [],
           printing_options: printingStr ? printingStr.split(',').map(p => p.trim()) : [],
+          dimensions: dimensions,
         }])
         .select()
         .single();
 
       if (error) throw error;
 
-      setProductList([data, ...productList]);
+      setProductList([data as Product, ...productList]);
       toast.success("Product added successfully!");
       setIsDialogOpen(false);
-      setSelectedFile(null);
-      setPreviewUrl("");
+      setSelectedFiles([]);
+      setPreviewUrls([]);
       e.currentTarget.reset();
     } catch (error: any) {
       toast.error(error.message || "Error adding product");
@@ -148,13 +184,27 @@ const ProductManagement = () => {
     try {
       const formData = new FormData(e.currentTarget);
       
-      let imageUrl = editingProduct.image;
-      if (selectedFile) {
-        imageUrl = await uploadImage(selectedFile);
+      // Upload new images if selected
+      let imageUrls = editingProduct.images || [editingProduct.image];
+      if (selectedFiles.length > 0) {
+        imageUrls = [];
+        for (const file of selectedFiles) {
+          const url = await uploadImage(file);
+          imageUrls.push(url);
+        }
       }
 
       const featuresStr = formData.get("features") as string;
       const printingStr = formData.get("printing_options") as string;
+      
+      // Build dimensions object
+      const dimensions = {
+        width: Number(formData.get("width")) || undefined,
+        height: Number(formData.get("height")) || undefined,
+        depth: Number(formData.get("depth")) || undefined,
+        weight: Number(formData.get("weight")) || undefined,
+        unit: formData.get("unit") as string || "cm",
+      };
       
       const { data, error } = await supabase
         .from('products')
@@ -164,11 +214,13 @@ const ProductManagement = () => {
           size: formData.get("size") as string,
           price: Number(formData.get("price")),
           description: formData.get("description") as string,
-          image: imageUrl,
+          image: imageUrls[0] || "/placeholder.svg",
+          images: imageUrls,
           moq: Number(formData.get("moq")) || 1000,
           delivery_days: formData.get("delivery_days") as string || "7-10 days",
           features: featuresStr ? featuresStr.split(',').map(f => f.trim()) : [],
           printing_options: printingStr ? printingStr.split(',').map(p => p.trim()) : [],
+          dimensions: dimensions,
         })
         .eq('id', editingProduct.id)
         .select()
@@ -177,13 +229,13 @@ const ProductManagement = () => {
       if (error) throw error;
 
       setProductList(productList.map(p => 
-        p.id === editingProduct.id ? data : p
+        p.id === editingProduct.id ? data as Product : p
       ));
       toast.success("Product updated successfully!");
       setEditingProduct(null);
       setIsDialogOpen(false);
-      setSelectedFile(null);
-      setPreviewUrl("");
+      setSelectedFiles([]);
+      setPreviewUrls([]);
     } catch (error: any) {
       toast.error(error.message || "Error updating product");
     } finally {
@@ -211,15 +263,15 @@ const ProductManagement = () => {
 
   const openEditDialog = (product: Product) => {
     setEditingProduct(product);
-    setSelectedFile(null);
-    setPreviewUrl("");
+    setSelectedFiles([]);
+    setPreviewUrls([]);
     setIsDialogOpen(true);
   };
 
   const openAddDialog = () => {
     setEditingProduct(null);
-    setSelectedFile(null);
-    setPreviewUrl("");
+    setSelectedFiles([]);
+    setPreviewUrls([]);
     setIsDialogOpen(true);
   };
 
@@ -364,25 +416,135 @@ const ProductManagement = () => {
                 />
               </div>
 
+              {/* Dimensions Section */}
+              <div className="space-y-3">
+                <Label className="text-base font-semibold">Product Dimensions</Label>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label htmlFor="width" className="text-xs">Width</Label>
+                    <Input
+                      id="width"
+                      name="width"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      defaultValue={editingProduct?.dimensions?.width}
+                      placeholder="0.00"
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="height" className="text-xs">Height</Label>
+                    <Input
+                      id="height"
+                      name="height"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      defaultValue={editingProduct?.dimensions?.height}
+                      placeholder="0.00"
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="depth" className="text-xs">Depth/Gusset</Label>
+                    <Input
+                      id="depth"
+                      name="depth"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      defaultValue={editingProduct?.dimensions?.depth}
+                      placeholder="0.00"
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="weight" className="text-xs">Weight (grams)</Label>
+                    <Input
+                      id="weight"
+                      name="weight"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      defaultValue={editingProduct?.dimensions?.weight}
+                      placeholder="0.00"
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="unit" className="text-xs">Unit</Label>
+                  <Input
+                    id="unit"
+                    name="unit"
+                    defaultValue={editingProduct?.dimensions?.unit || "cm"}
+                    placeholder="cm, inches, etc."
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+
               <div>
-                <Label htmlFor="image">Product Image</Label>
+                <Label htmlFor="images">Product Images (Multiple)</Label>
                 <div className="mt-2 space-y-4">
                   <Input
-                    id="image"
+                    id="images"
                     type="file"
                     accept="image/*"
+                    multiple
                     onChange={handleFileChange}
                     className="cursor-pointer"
                   />
-                  {(previewUrl || editingProduct?.image) && (
-                    <div className="relative w-full aspect-video bg-muted rounded-lg overflow-hidden">
-                      <img 
-                        src={previewUrl || editingProduct?.image} 
-                        alt="Preview"
-                        className="w-full h-full object-cover"
-                      />
+                  
+                  {/* Preview existing images when editing */}
+                  {!previewUrls.length && editingProduct?.images && editingProduct.images.length > 0 && (
+                    <div className="grid grid-cols-3 gap-2">
+                      {editingProduct.images.map((img, idx) => (
+                        <div key={idx} className="relative aspect-square bg-muted rounded-lg overflow-hidden">
+                          <img 
+                            src={img} 
+                            alt={`Product ${idx + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                          <Badge className="absolute top-2 right-2" variant="secondary">
+                            {idx + 1}
+                          </Badge>
+                        </div>
+                      ))}
                     </div>
                   )}
+                  
+                  {/* Preview newly selected images */}
+                  {previewUrls.length > 0 && (
+                    <div className="grid grid-cols-3 gap-2">
+                      {previewUrls.map((url, idx) => (
+                        <div key={idx} className="relative aspect-square bg-muted rounded-lg overflow-hidden group">
+                          <img 
+                            src={url} 
+                            alt={`Preview ${idx + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="icon"
+                            className="absolute top-2 right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => removePreviewImage(idx)}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                          <Badge className="absolute bottom-2 left-2" variant="secondary">
+                            {idx + 1}
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  
+                  <p className="text-xs text-muted-foreground">
+                    Upload multiple images. First image will be the main product image.
+                  </p>
                 </div>
               </div>
 
@@ -422,10 +584,15 @@ const ProductManagement = () => {
           <Card key={product.id} className="overflow-hidden">
             <div className="aspect-video bg-muted relative">
               <img 
-                src={product.image} 
+                src={product.images?.[0] || product.image} 
                 alt={product.name}
                 className="w-full h-full object-cover"
               />
+              {product.images && product.images.length > 1 && (
+                <Badge className="absolute top-2 right-2" variant="secondary">
+                  {product.images.length} images
+                </Badge>
+              )}
             </div>
             <CardHeader>
               <CardTitle className="flex justify-between items-start">
@@ -441,6 +608,13 @@ const ProductManagement = () => {
                 <p className="text-sm text-muted-foreground">
                   MOQ: {product.moq} • Delivery: {product.delivery_days}
                 </p>
+                {product.dimensions && (product.dimensions.width || product.dimensions.height) && (
+                  <p className="text-xs text-muted-foreground">
+                    Dimensions: {product.dimensions.width}×{product.dimensions.height}
+                    {product.dimensions.depth && `×${product.dimensions.depth}`} {product.dimensions.unit || 'cm'}
+                    {product.dimensions.weight && ` • ${product.dimensions.weight}g`}
+                  </p>
+                )}
                 <p className="text-sm line-clamp-2">{product.description}</p>
                 {product.features && product.features.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-2">

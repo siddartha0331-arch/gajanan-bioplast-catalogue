@@ -22,11 +22,19 @@ interface Product {
   size: string;
   price: number;
   image: string;
+  images: string[];
   description: string;
   moq: number;
   delivery_days: string;
   printing_options: string[];
   features: string[];
+  dimensions: {
+    width?: number;
+    height?: number;
+    depth?: number;
+    weight?: number;
+    unit?: string;
+  };
 }
 
 interface CustomizationDialogProps {
@@ -76,7 +84,7 @@ export const CustomizationDialog = ({ product, children }: CustomizationDialogPr
           <div className="space-y-4">
             <div className="aspect-square rounded-lg overflow-hidden bg-muted relative group">
               <img
-                src={product.image}
+                src={product.images?.[0] || product.image}
                 alt={product.name}
                 className="w-full h-full object-cover"
               />

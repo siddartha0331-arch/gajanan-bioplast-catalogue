@@ -8,6 +8,7 @@ import { User } from "@supabase/supabase-js";
 import { useTiltEffect } from "@/hooks/useTiltEffect";
 import { useMagneticHover } from "@/hooks/useMagneticHover";
 import { CustomizationDialog } from "@/components/products/CustomizationDialog";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Palette, 
   Package, 
@@ -268,6 +269,7 @@ const Products = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -292,10 +294,25 @@ const Products = () => {
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Database error:", error);
+        toast({
+          title: "Error loading products",
+          description: error.message,
+          variant: "destructive",
+        });
+        throw error;
+      }
+      
+      console.log("Fetched products:", data);
       setProducts((data || []) as Product[]);
     } catch (error) {
       console.error("Error fetching products:", error);
+      toast({
+        title: "Failed to load products",
+        description: "Please refresh the page or contact support.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }

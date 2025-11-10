@@ -13,6 +13,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Plus, Edit, Trash2, Upload, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -294,7 +295,7 @@ const ProductManagement = () => {
               Add Product
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl max-h-[90vh]">
             <DialogHeader>
               <DialogTitle>
                 {editingProduct ? "Edit Product" : "Add New Product"}
@@ -305,7 +306,8 @@ const ProductManagement = () => {
                   : "Fill in the details for the new product"}
               </DialogDescription>
             </DialogHeader>
-            <form onSubmit={editingProduct ? handleEditProduct : handleAddProduct} className="space-y-4">
+            <ScrollArea className="max-h-[calc(90vh-120px)] pr-4">
+              <form onSubmit={editingProduct ? handleEditProduct : handleAddProduct} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="name">Product Name</Label>
@@ -575,6 +577,7 @@ const ProductManagement = () => {
                 </Button>
               </div>
             </form>
+            </ScrollArea>
           </DialogContent>
         </Dialog>
       </div>

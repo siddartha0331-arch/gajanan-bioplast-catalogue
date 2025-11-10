@@ -14,9 +14,16 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Plus, Edit, Trash2, Upload, Loader2 } from "lucide-react";
+import { Plus, Edit, Trash2, Upload, Loader2, Search, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Product {
   id: string;
@@ -48,6 +55,9 @@ const ProductManagement = () => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterType, setFilterType] = useState<string>("all");
+  const [carouselIndex, setCarouselIndex] = useState(0);
 
   useEffect(() => {
     fetchProducts();
@@ -266,6 +276,7 @@ const ProductManagement = () => {
     setEditingProduct(product);
     setSelectedFiles([]);
     setPreviewUrls([]);
+    setCarouselIndex(0);
     setIsDialogOpen(true);
   };
 
@@ -273,7 +284,42 @@ const ProductManagement = () => {
     setEditingProduct(null);
     setSelectedFiles([]);
     setPreviewUrls([]);
+    setCarouselIndex(0);
     setIsDialogOpen(true);
+  };
+
+  // Get unique product types for filter
+  const productTypes = Array.from(new Set(productList.map(p => p.type)));
+
+  // Filter products based on search and filter
+  const filteredProducts = productList.filter(product => {
+    const matchesSearch = 
+      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.description.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesType = filterType === "all" || product.type === filterType;
+    
+    return matchesSearch && matchesType;
+  });
+
+  // Get all images for carousel (existing or preview)
+  const carouselImages = previewUrls.length > 0 
+    ? previewUrls 
+    : (editingProduct?.images && editingProduct.images.length > 0 
+        ? editingProduct.images 
+        : []);
+
+  const nextImage = () => {
+    if (carouselImages.length > 0) {
+      setCarouselIndex((prev) => (prev + 1) % carouselImages.length);
+    }
+  };
+
+  const prevImage = () => {
+    if (carouselImages.length > 0) {
+      setCarouselIndex((prev) => (prev - 1 + carouselImages.length) % carouselImages.length);
+    }
   };
 
   if (loading) {
@@ -286,9 +332,10 @@ const ProductManagement = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Product Management</h2>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <div className="flex flex-col gap-4">
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-bold">Product Management</h2>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={openAddDialog} className="bg-gradient-to-r from-primary to-accent">
               <Plus className="mr-2 h-4 w-4" />
@@ -499,48 +546,82 @@ const ProductManagement = () => {
                     className="cursor-pointer"
                   />
                   
-                  {/* Preview existing images when editing */}
-                  {!previewUrls.length && editingProduct?.images && editingProduct.images.length > 0 && (
-                    <div className="grid grid-cols-3 gap-2">
-                      {editingProduct.images.map((img, idx) => (
-                        <div key={idx} className="relative aspect-square bg-muted rounded-lg overflow-hidden">
-                          <img 
-                            src={img} 
-                            alt={`Product ${idx + 1}`}
-                            className="w-full h-full object-cover"
-                          />
-                          <Badge className="absolute top-2 right-2" variant="secondary">
-                            {idx + 1}
-                          </Badge>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  
-                  {/* Preview newly selected images */}
-                  {previewUrls.length > 0 && (
-                    <div className="grid grid-cols-3 gap-2">
-                      {previewUrls.map((url, idx) => (
-                        <div key={idx} className="relative aspect-square bg-muted rounded-lg overflow-hidden group">
-                          <img 
-                            src={url} 
-                            alt={`Preview ${idx + 1}`}
-                            className="w-full h-full object-cover"
-                          />
+                  {/* Image Carousel Preview */}
+                  {carouselImages.length > 0 && (
+                    <div className="space-y-3">
+                      <div className="relative aspect-video bg-muted rounded-lg overflow-hidden group">
+                        <img 
+                          src={carouselImages[carouselIndex]} 
+                          alt={`Preview ${carouselIndex + 1}`}
+                          className="w-full h-full object-contain"
+                        />
+                        
+                        {/* Navigation buttons */}
+                        {carouselImages.length > 1 && (
+                          <>
+                            <Button
+                              type="button"
+                              variant="secondary"
+                              size="icon"
+                              className="absolute left-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={prevImage}
+                            >
+                              <ChevronLeft className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="secondary"
+                              size="icon"
+                              className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={nextImage}
+                            >
+                              <ChevronRight className="h-4 w-4" />
+                            </Button>
+                          </>
+                        )}
+                        
+                        {/* Image counter */}
+                        <Badge className="absolute top-2 right-2" variant="secondary">
+                          {carouselIndex + 1} / {carouselImages.length}
+                        </Badge>
+                        
+                        {/* Delete button for preview images */}
+                        {previewUrls.length > 0 && (
                           <Button
                             type="button"
                             variant="destructive"
                             size="icon"
-                            className="absolute top-2 right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                            onClick={() => removePreviewImage(idx)}
+                            className="absolute top-2 left-2 h-8 w-8"
+                            onClick={() => removePreviewImage(carouselIndex)}
                           >
-                            <Trash2 className="h-3 w-3" />
+                            <Trash2 className="h-4 w-4" />
                           </Button>
-                          <Badge className="absolute bottom-2 left-2" variant="secondary">
-                            {idx + 1}
-                          </Badge>
+                        )}
+                      </div>
+                      
+                      {/* Thumbnail navigation */}
+                      {carouselImages.length > 1 && (
+                        <div className="flex gap-2 overflow-x-auto pb-2">
+                          {carouselImages.map((img, idx) => (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => setCarouselIndex(idx)}
+                              className={`relative flex-shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 transition-all ${
+                                idx === carouselIndex 
+                                  ? 'border-primary scale-105' 
+                                  : 'border-border hover:border-primary/50'
+                              }`}
+                            >
+                              <img 
+                                src={img} 
+                                alt={`Thumbnail ${idx + 1}`}
+                                className="w-full h-full object-cover"
+                              />
+                            </button>
+                          ))}
                         </div>
-                      ))}
+                      )}
                     </div>
                   )}
                   
@@ -580,10 +661,57 @@ const ProductManagement = () => {
             </ScrollArea>
           </DialogContent>
         </Dialog>
+        </div>
+
+        {/* Search and Filter */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search products by name, type, or description..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+            {searchQuery && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
+                onClick={() => setSearchQuery("")}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+          <Select value={filterType} onValueChange={setFilterType}>
+            <SelectTrigger className="w-full sm:w-[200px]">
+              <SelectValue placeholder="Filter by type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Types</SelectItem>
+              {productTypes.map((type) => (
+                <SelectItem key={type} value={type}>
+                  {type}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Results count */}
+        <div className="text-sm text-muted-foreground">
+          Showing {filteredProducts.length} of {productList.length} products
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {productList.map((product) => (
+        {filteredProducts.length === 0 ? (
+          <div className="col-span-full text-center py-12">
+            <p className="text-muted-foreground">No products found matching your criteria</p>
+          </div>
+        ) : (
+          filteredProducts.map((product) => (
           <Card key={product.id} className="overflow-hidden">
             <div className="aspect-video bg-muted relative">
               <img 
@@ -651,7 +779,8 @@ const ProductManagement = () => {
               </div>
             </CardContent>
           </Card>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );

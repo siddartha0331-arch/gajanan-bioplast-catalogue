@@ -200,24 +200,11 @@ const ProductCard = ({ product, index, user, navigate }: {
               </div>
             </div>
 
-            {/* Price & Actions */}
+            {/* Action Buttons */}
             <div className="space-y-3 pt-2">
-              <div className="flex items-baseline justify-between">
-                <div>
-                  <p className="text-xs text-muted-foreground">Starting from</p>
-                  <p className="text-3xl font-bold">
-                    <span className="text-gradient">₹{product.price}</span>
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xs text-muted-foreground">per unit</p>
-                  <Badge variant="secondary" className="mt-1">
-                    Bulk discounts available
-                  </Badge>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
+              <Badge variant="secondary" className="w-full justify-center py-1.5">
+                Bulk discounts available
+              </Badge>
               <div className="flex gap-2">
                 <CustomizationDialog product={product}>
                   <Button 
@@ -246,7 +233,7 @@ const ProductCard = ({ product, index, user, navigate }: {
                     <a
                       href={`https://wa.me/919834711168?text=Hello%20Gajanan%20Bioplast,%20I%20want%20to%20enquire%20about%20${encodeURIComponent(
                         product.name
-                      )}%20(${product.size})%20with%20custom%20printing.%20Price:%20₹${product.price}.`}
+                      )}%20(${product.size})%20with%20custom%20printing.`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >

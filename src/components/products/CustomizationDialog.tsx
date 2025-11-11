@@ -98,10 +98,6 @@ export const CustomizationDialog = ({ product, children }: CustomizationDialogPr
 
             <div className="card-glass p-4 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Base Price</span>
-                <span className="font-bold text-gradient">₹{product.price}</span>
-              </div>
-              <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">MOQ</span>
                 <Badge variant="secondary">{product.moq} units</Badge>
               </div>

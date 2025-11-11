@@ -28,13 +28,7 @@ interface Product {
   delivery_days: string;
   printing_options: string[];
   features: string[];
-  dimensions: {
-    width?: number;
-    height?: number;
-    depth?: number;
-    weight?: number;
-    unit?: string;
-  };
+  dimensions: string[];
 }
 
 interface CustomizationDialogProps {
@@ -48,6 +42,7 @@ export const CustomizationDialog = ({ product, children }: CustomizationDialogPr
   const [logoFile, setLogoFile] = useState<string>("");
   const [customText, setCustomText] = useState("");
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
+  const [selectedSize, setSelectedSize] = useState(product.dimensions?.[0] || "");
 
   const colors = [
     { name: "Red", value: "bg-red-500" },
@@ -110,6 +105,26 @@ export const CustomizationDialog = ({ product, children }: CustomizationDialogPr
 
           {/* Right Column - Customization Options */}
           <div className="space-y-6">
+            {/* Size Selection */}
+            {product.dimensions && product.dimensions.length > 0 && (
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-primary" />
+                  Size
+                </Label>
+                <RadioGroup value={selectedSize} onValueChange={setSelectedSize}>
+                  {product.dimensions.map((size) => (
+                    <div key={size} className="flex items-center space-x-2">
+                      <RadioGroupItem value={size} id={`size-${size}`} />
+                      <Label htmlFor={`size-${size}`} className="cursor-pointer">
+                        {size}
+                      </Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              </div>
+            )}
+
             {/* Quantity */}
             <div className="space-y-2">
               <Label className="flex items-center gap-2">

@@ -33,13 +33,7 @@ interface Product {
   delivery_days: string;
   printing_options: string[];
   features: string[];
-  dimensions: {
-    width?: number;
-    height?: number;
-    depth?: number;
-    weight?: number;
-    unit?: string;
-  };
+  dimensions: string[];
 }
 
 const ProductCard = ({ product, index, user, navigate }: { 

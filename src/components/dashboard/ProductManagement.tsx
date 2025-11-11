@@ -38,13 +38,7 @@ interface Product {
   delivery_days: string;
   features: string[];
   printing_options: string[];
-  dimensions: {
-    width?: number;
-    height?: number;
-    depth?: number;
-    weight?: number;
-    unit?: string;
-  };
+  dimensions: string[];
 }
 
 const ProductManagement = () => {
@@ -142,15 +136,10 @@ const ProductManagement = () => {
 
       const featuresStr = formData.get("features") as string;
       const printingStr = formData.get("printing_options") as string;
+      const dimensionsStr = formData.get("dimensions") as string;
       
-      // Build dimensions object
-      const dimensions = {
-        width: Number(formData.get("width")) || undefined,
-        height: Number(formData.get("height")) || undefined,
-        depth: Number(formData.get("depth")) || undefined,
-        weight: Number(formData.get("weight")) || undefined,
-        unit: formData.get("unit") as string || "cm",
-      };
+      // Parse dimensions as array of strings
+      const dimensions = dimensionsStr ? dimensionsStr.split(',').map(d => d.trim()).filter(Boolean) : [];
       
       const { data, error } = await supabase
         .from('products')
@@ -207,15 +196,10 @@ const ProductManagement = () => {
 
       const featuresStr = formData.get("features") as string;
       const printingStr = formData.get("printing_options") as string;
+      const dimensionsStr = formData.get("dimensions") as string;
       
-      // Build dimensions object
-      const dimensions = {
-        width: Number(formData.get("width")) || undefined,
-        height: Number(formData.get("height")) || undefined,
-        depth: Number(formData.get("depth")) || undefined,
-        weight: Number(formData.get("weight")) || undefined,
-        unit: formData.get("unit") as string || "cm",
-      };
+      // Parse dimensions as array of strings
+      const dimensions = dimensionsStr ? dimensionsStr.split(',').map(d => d.trim()).filter(Boolean) : [];
       
       const { data, error } = await supabase
         .from('products')
@@ -466,72 +450,21 @@ const ProductManagement = () => {
               </div>
 
               {/* Dimensions Section */}
-              <div className="space-y-3">
-                <Label className="text-base font-semibold">Product Dimensions</Label>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <Label htmlFor="width" className="text-xs">Width</Label>
-                    <Input
-                      id="width"
-                      name="width"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      defaultValue={editingProduct?.dimensions?.width}
-                      placeholder="0.00"
-                      className="mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="height" className="text-xs">Height</Label>
-                    <Input
-                      id="height"
-                      name="height"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      defaultValue={editingProduct?.dimensions?.height}
-                      placeholder="0.00"
-                      className="mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="depth" className="text-xs">Depth/Gusset</Label>
-                    <Input
-                      id="depth"
-                      name="depth"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      defaultValue={editingProduct?.dimensions?.depth}
-                      placeholder="0.00"
-                      className="mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="weight" className="text-xs">Weight (grams)</Label>
-                    <Input
-                      id="weight"
-                      name="weight"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      defaultValue={editingProduct?.dimensions?.weight}
-                      placeholder="0.00"
-                      className="mt-1"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="unit" className="text-xs">Unit</Label>
-                  <Input
-                    id="unit"
-                    name="unit"
-                    defaultValue={editingProduct?.dimensions?.unit || "cm"}
-                    placeholder="cm, inches, etc."
-                    className="mt-1"
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="dimensions">
+                  Available Sizes (comma-separated, e.g., "10x15, 12x18, 15x21")
+                </Label>
+                <Textarea
+                  id="dimensions"
+                  name="dimensions"
+                  defaultValue={editingProduct?.dimensions?.join(', ')}
+                  placeholder="10x15, 12x18, 15x21, 19x22"
+                  className="mt-2"
+                  rows={2}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Enter dimension ratios in format: widthxheight (e.g., 10x15)
+                </p>
               </div>
 
               <div>
@@ -739,11 +672,9 @@ const ProductManagement = () => {
                 <p className="text-sm text-muted-foreground">
                   MOQ: {product.moq} • Delivery: {product.delivery_days}
                 </p>
-                {product.dimensions && (product.dimensions.width || product.dimensions.height) && (
+                {product.dimensions && product.dimensions.length > 0 && (
                   <p className="text-xs text-muted-foreground">
-                    Dimensions: {product.dimensions.width}×{product.dimensions.height}
-                    {product.dimensions.depth && `×${product.dimensions.depth}`} {product.dimensions.unit || 'cm'}
-                    {product.dimensions.weight && ` • ${product.dimensions.weight}g`}
+                    Available Sizes: {product.dimensions.join(', ')}
                   </p>
                 )}
                 <p className="text-sm line-clamp-2">{product.description}</p>

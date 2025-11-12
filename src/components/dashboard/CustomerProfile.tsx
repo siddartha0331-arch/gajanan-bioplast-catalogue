@@ -17,8 +17,14 @@ const CustomerProfile = ({ userId }: CustomerProfileProps) => {
   const [saving, setSaving] = useState(false);
   const [profile, setProfile] = useState({
     full_name: "",
+    business_name: "",
+    business_type: "",
+    gst_number: "",
     phone: "",
     address: "",
+    city: "",
+    state: "",
+    pincode: "",
   });
   const [email, setEmail] = useState("");
 
@@ -40,8 +46,14 @@ const CustomerProfile = ({ userId }: CustomerProfileProps) => {
       if (!error && data) {
         setProfile({
           full_name: data.full_name || "",
+          business_name: data.business_name || "",
+          business_type: data.business_type || "",
+          gst_number: data.gst_number || "",
           phone: data.phone || "",
           address: data.address || "",
+          city: data.city || "",
+          state: data.state || "",
+          pincode: data.pincode || "",
         });
       }
       setLoading(false);
@@ -57,8 +69,14 @@ const CustomerProfile = ({ userId }: CustomerProfileProps) => {
       .from("profiles")
       .update({
         full_name: profile.full_name.trim() || null,
+        business_name: profile.business_name.trim() || null,
+        business_type: profile.business_type.trim() || null,
+        gst_number: profile.gst_number.trim() || null,
         phone: profile.phone.trim() || null,
         address: profile.address.trim() || null,
+        city: profile.city.trim() || null,
+        state: profile.state.trim() || null,
+        pincode: profile.pincode.trim() || null,
       })
       .eq("id", userId);
 
@@ -105,7 +123,7 @@ const CustomerProfile = ({ userId }: CustomerProfileProps) => {
           <div className="space-y-2">
             <Label htmlFor="full_name" className="flex items-center gap-2 text-sm font-semibold">
               <User className="h-4 w-4 text-muted-foreground" />
-              Full Name
+              Full Name *
             </Label>
             <Input
               id="full_name"
@@ -115,13 +133,60 @@ const CustomerProfile = ({ userId }: CustomerProfileProps) => {
               }
               placeholder="Enter your full name"
               className="h-11 bg-background/50 border-primary/20 focus:border-primary transition-all"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="business_name" className="flex items-center gap-2 text-sm font-semibold">
+              Business Name *
+            </Label>
+            <Input
+              id="business_name"
+              value={profile.business_name}
+              onChange={(e) =>
+                setProfile((prev) => ({ ...prev, business_name: e.target.value }))
+              }
+              placeholder="Enter your business name"
+              className="h-11 bg-background/50 border-primary/20 focus:border-primary transition-all"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="business_type" className="flex items-center gap-2 text-sm font-semibold">
+              Business Type
+            </Label>
+            <Input
+              id="business_type"
+              value={profile.business_type}
+              onChange={(e) =>
+                setProfile((prev) => ({ ...prev, business_type: e.target.value }))
+              }
+              placeholder="e.g., Retail, Manufacturing, Trading"
+              className="h-11 bg-background/50 border-primary/20 focus:border-primary transition-all"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="gst_number" className="flex items-center gap-2 text-sm font-semibold">
+              GST Number
+            </Label>
+            <Input
+              id="gst_number"
+              value={profile.gst_number}
+              onChange={(e) =>
+                setProfile((prev) => ({ ...prev, gst_number: e.target.value }))
+              }
+              placeholder="e.g., 22AAAAA0000A1Z5"
+              className="h-11 bg-background/50 border-primary/20 focus:border-primary transition-all"
             />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="phone" className="flex items-center gap-2 text-sm font-semibold">
               <Phone className="h-4 w-4 text-muted-foreground" />
-              Phone Number
+              Phone Number *
             </Label>
             <Input
               id="phone"
@@ -131,13 +196,14 @@ const CustomerProfile = ({ userId }: CustomerProfileProps) => {
               }
               placeholder="Enter your phone number"
               className="h-11 bg-background/50 border-primary/20 focus:border-primary transition-all"
+              required
             />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="address" className="flex items-center gap-2 text-sm font-semibold">
               <MapPin className="h-4 w-4 text-muted-foreground" />
-              Address
+              Complete Address *
             </Label>
             <Textarea
               id="address"
@@ -147,8 +213,59 @@ const CustomerProfile = ({ userId }: CustomerProfileProps) => {
               }
               placeholder="Enter your full address"
               className="bg-background/50 border-primary/20 focus:border-primary transition-all resize-none"
-              rows={4}
+              rows={3}
+              required
             />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="city" className="text-sm font-semibold">
+                City *
+              </Label>
+              <Input
+                id="city"
+                value={profile.city}
+                onChange={(e) =>
+                  setProfile((prev) => ({ ...prev, city: e.target.value }))
+                }
+                placeholder="City"
+                className="h-11 bg-background/50 border-primary/20 focus:border-primary transition-all"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="state" className="text-sm font-semibold">
+                State *
+              </Label>
+              <Input
+                id="state"
+                value={profile.state}
+                onChange={(e) =>
+                  setProfile((prev) => ({ ...prev, state: e.target.value }))
+                }
+                placeholder="State"
+                className="h-11 bg-background/50 border-primary/20 focus:border-primary transition-all"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="pincode" className="text-sm font-semibold">
+                Pincode *
+              </Label>
+              <Input
+                id="pincode"
+                value={profile.pincode}
+                onChange={(e) =>
+                  setProfile((prev) => ({ ...prev, pincode: e.target.value }))
+                }
+                placeholder="Pincode"
+                className="h-11 bg-background/50 border-primary/20 focus:border-primary transition-all"
+                required
+              />
+            </div>
           </div>
 
           <Button

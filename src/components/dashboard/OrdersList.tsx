@@ -26,7 +26,20 @@ const OrdersList = ({ userId, isAdmin }: OrdersListProps) => {
     setLoading(true);
     const { data, error } = await supabase
       .from("orders")
-      .select("*")
+      .select(`
+        *,
+        profiles:user_id (
+          full_name,
+          business_name,
+          business_type,
+          gst_number,
+          phone,
+          address,
+          city,
+          state,
+          pincode
+        )
+      `)
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -99,7 +112,7 @@ const OrdersList = ({ userId, isAdmin }: OrdersListProps) => {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="flex justify-between items-center">
+              <div className="space-y-4">
                 <div>
                   {order.notes && (
                     <p className="text-sm text-muted-foreground">
@@ -111,22 +124,61 @@ const OrdersList = ({ userId, isAdmin }: OrdersListProps) => {
                   </p>
                 </div>
 
+                {isAdmin && order.profiles && (
+                  <div className="pt-4 border-t">
+                    <p className="font-semibold text-sm mb-2">Customer Information:</p>
+                    <div className="space-y-1">
+                      {order.profiles.business_name && (
+                        <p className="text-sm text-muted-foreground">
+                          Business: {order.profiles.business_name}
+                          {order.profiles.business_type && ` (${order.profiles.business_type})`}
+                        </p>
+                      )}
+                      {order.profiles.full_name && (
+                        <p className="text-sm text-muted-foreground">
+                          Contact: {order.profiles.full_name}
+                        </p>
+                      )}
+                      {order.profiles.phone && (
+                        <p className="text-sm text-muted-foreground">
+                          Phone: {order.profiles.phone}
+                        </p>
+                      )}
+                      {order.profiles.gst_number && (
+                        <p className="text-sm text-muted-foreground">
+                          GST: {order.profiles.gst_number}
+                        </p>
+                      )}
+                      {order.profiles.address && (
+                        <p className="text-sm text-muted-foreground">
+                          Address: {order.profiles.address}
+                          {order.profiles.city && `, ${order.profiles.city}`}
+                          {order.profiles.state && `, ${order.profiles.state}`}
+                          {order.profiles.pincode && ` - ${order.profiles.pincode}`}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 {isAdmin && (
-                  <Select
-                    value={order.status}
-                    onValueChange={(value) => updateOrderStatus(order.id, value)}
-                  >
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="confirmed">Confirmed</SelectItem>
-                      <SelectItem value="processing">Processing</SelectItem>
-                      <SelectItem value="completed">Completed</SelectItem>
-                      <SelectItem value="cancelled">Cancelled</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="flex justify-end pt-2">
+                    <Select
+                      value={order.status}
+                      onValueChange={(value) => updateOrderStatus(order.id, value)}
+                    >
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="confirmed">Confirmed</SelectItem>
+                        <SelectItem value="processing">Processing</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
+                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 )}
               </div>
             </CardContent>

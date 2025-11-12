@@ -13,7 +13,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
-import { Palette, Type, Image as ImageIcon, Sparkles } from "lucide-react";
+import { Palette, Type, Image as ImageIcon, Sparkles, ShoppingCart } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface Product {
   id: string;
@@ -37,12 +40,15 @@ interface CustomizationDialogProps {
 }
 
 export const CustomizationDialog = ({ product, children }: CustomizationDialogProps) => {
+  const navigate = useNavigate();
   const [printType, setPrintType] = useState(product.printing_options?.[0] || "Screen Printing");
   const [quantity, setQuantity] = useState(product.moq);
   const [logoFile, setLogoFile] = useState<string>("");
   const [customText, setCustomText] = useState("");
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [selectedSize, setSelectedSize] = useState(product.dimensions?.[0] || "");
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
 
   const colors = [
     { name: "Red", value: "bg-red-500" },
@@ -61,8 +67,49 @@ export const CustomizationDialog = ({ product, children }: CustomizationDialogPr
     );
   };
 
+  const addToCart = async () => {
+    if (!selectedSize) {
+      toast.error("Please select a size");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast.error("Please login to add items to cart");
+        navigate("/auth");
+        return;
+      }
+
+      const notes = `Colors: ${selectedColors.join(", ")}, Print: ${printType}, Text: ${customText}, Logo: ${logoFile}`;
+
+      const { error } = await supabase.from("cart_items").insert({
+        user_id: user.id,
+        product_id: product.id,
+        product_name: product.name,
+        product_type: product.type,
+        product_size: selectedSize,
+        quantity,
+        notes,
+      });
+
+      if (error) throw error;
+
+      toast.success("Added to cart!");
+      setOpen(false);
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      toast.error("Failed to add to cart");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
@@ -237,13 +284,13 @@ export const CustomizationDialog = ({ product, children }: CustomizationDialogPr
             {/* Action Buttons */}
             <div className="flex gap-3 pt-4">
               <Button
+                onClick={addToCart}
+                disabled={loading}
                 className="flex-1 bg-gradient-to-r from-primary via-accent to-secondary hover:shadow-glow"
                 size="lg"
               >
-                Get Quote
-              </Button>
-              <Button variant="outline" size="lg" className="flex-1">
-                Save Design
+                <ShoppingCart className="mr-2 h-4 w-4" />
+                {loading ? "Adding..." : "Add to Cart"}
               </Button>
             </div>
           </div>

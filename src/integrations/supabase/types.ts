@@ -14,6 +14,53 @@ export type Database = {
   }
   public: {
     Tables: {
+      cart_items: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          product_id: string
+          product_name: string
+          product_size: string
+          product_type: string
+          quantity: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          product_id: string
+          product_name: string
+          product_size: string
+          product_type: string
+          quantity?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          product_id?: string
+          product_name?: string
+          product_size?: string
+          product_type?: string
+          quantity?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cart_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customer_preferences: {
         Row: {
           created_at: string | null
@@ -43,6 +90,57 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      order_items: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          order_id: string
+          product_id: string
+          product_name: string
+          product_size: string
+          product_type: string
+          quantity: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          order_id: string
+          product_id: string
+          product_name: string
+          product_size: string
+          product_type: string
+          quantity: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          order_id?: string
+          product_id?: string
+          product_name?: string
+          product_size?: string
+          product_type?: string
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       orders: {
         Row: {
@@ -152,26 +250,44 @@ export type Database = {
       profiles: {
         Row: {
           address: string | null
+          business_name: string | null
+          business_type: string | null
+          city: string | null
           created_at: string | null
           full_name: string | null
+          gst_number: string | null
           id: string
           phone: string | null
+          pincode: string | null
+          state: string | null
           updated_at: string | null
         }
         Insert: {
           address?: string | null
+          business_name?: string | null
+          business_type?: string | null
+          city?: string | null
           created_at?: string | null
           full_name?: string | null
+          gst_number?: string | null
           id: string
           phone?: string | null
+          pincode?: string | null
+          state?: string | null
           updated_at?: string | null
         }
         Update: {
           address?: string | null
+          business_name?: string | null
+          business_type?: string | null
+          city?: string | null
           created_at?: string | null
           full_name?: string | null
+          gst_number?: string | null
           id?: string
           phone?: string | null
+          pincode?: string | null
+          state?: string | null
           updated_at?: string | null
         }
         Relationships: []

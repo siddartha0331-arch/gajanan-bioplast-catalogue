@@ -1,151 +1,159 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { toast } from "sonner";
-import { products } from "@/data/products";
 
 interface PlaceOrderProps {
   userId: string;
 }
 
 const PlaceOrder = ({ userId }: PlaceOrderProps) => {
-  const [selectedProduct, setSelectedProduct] = useState<string>("");
-  const [quantity, setQuantity] = useState<number>(1);
-  const [deliveryDays, setDeliveryDays] = useState<number>(7);
-  const [notes, setNotes] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  const [cartItems, setCartItems] = useState<any[]>([]);
 
-  const product = products.find((p) => p.id === selectedProduct);
+  useEffect(() => {
+    fetchCartItems();
+  }, [userId]);
+
+  const fetchCartItems = async () => {
+    const { data } = await supabase
+      .from("cart_items")
+      .select("*")
+      .eq("user_id", userId);
+    setCartItems(data || []);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!product) return;
+    
+    if (cartItems.length === 0) {
+      toast.error("Your cart is empty. Please add items first.");
+      return;
+    }
 
     setLoading(true);
 
-    const expectedCompletionDate = new Date();
-    expectedCompletionDate.setDate(expectedCompletionDate.getDate() + deliveryDays);
+    try {
+      // Check if profile is complete
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .single();
 
-    const { error } = await supabase.from("orders").insert({
-      user_id: userId,
-      product_name: product.name,
-      product_type: product.type,
-      product_size: product.size,
-      quantity,
-      price_per_unit: 0,
-      total_price: 0,
-      delivery_days: deliveryDays,
-      expected_completion_date: expectedCompletionDate.toISOString(),
-      notes: notes.trim() || null,
-    });
+      if (!profile?.business_name || !profile?.phone || !profile?.address) {
+        toast.error("Please complete your business profile before placing an order");
+        setLoading(false);
+        return;
+      }
 
-    if (error) {
-      toast.error("Error placing order");
-    } else {
+      // Create the main order
+      const completionDate = new Date();
+      completionDate.setDate(completionDate.getDate() + 7);
+
+      const { data: order, error: orderError } = await supabase
+        .from("orders")
+        .insert({
+          user_id: userId,
+          product_name: "Bulk Order",
+          product_type: "Multiple Items",
+          product_size: "Various",
+          quantity: cartItems.reduce((sum, item) => sum + item.quantity, 0),
+          price_per_unit: 0,
+          total_price: 0,
+          delivery_days: 7,
+          expected_completion_date: completionDate.toISOString(),
+          notes: `Order from cart with ${cartItems.length} items`,
+          status: "pending",
+        })
+        .select()
+        .single();
+
+      if (orderError) throw orderError;
+
+      // Create order items
+      const orderItems = cartItems.map((item) => ({
+        order_id: order.id,
+        product_id: item.product_id,
+        product_name: item.product_name,
+        product_type: item.product_type,
+        product_size: item.product_size,
+        quantity: item.quantity,
+        notes: item.notes,
+      }));
+
+      const { error: itemsError } = await supabase
+        .from("order_items")
+        .insert(orderItems);
+
+      if (itemsError) throw itemsError;
+
+      // Clear cart
+      const { error: clearError } = await supabase
+        .from("cart_items")
+        .delete()
+        .eq("user_id", userId);
+
+      if (clearError) throw clearError;
+
       toast.success("Order placed successfully!");
-      setSelectedProduct("");
-      setQuantity(1);
-      setDeliveryDays(7);
-      setNotes("");
+      fetchCartItems();
+    } catch (error) {
+      console.error("Error placing order:", error);
+      toast.error("Failed to place order. Please try again.");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Place New Order</CardTitle>
+        <CardTitle>Checkout</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <Label htmlFor="product">Select Product</Label>
-            <Select value={selectedProduct} onValueChange={setSelectedProduct} required>
-              <SelectTrigger className="mt-2">
-                <SelectValue placeholder="Choose a product" />
-              </SelectTrigger>
-              <SelectContent>
-                {products.map((p) => (
-                  <SelectItem key={p.id} value={p.id}>
-                    {p.name} ({p.size})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {product && (
-            <div className="p-4 bg-muted/50 rounded-lg">
-              <h4 className="font-semibold mb-2">{product.name}</h4>
-              <p className="text-sm text-muted-foreground mb-1">
-                Type: {product.type} • Size: {product.size}
-              </p>
-              <p className="text-sm text-muted-foreground">{product.description}</p>
-            </div>
-          )}
-
-          <div>
-            <Label htmlFor="quantity">Quantity</Label>
-            <Input
-              id="quantity"
-              type="number"
-              min="1"
-              value={quantity}
-              onChange={(e) => setQuantity(Number(e.target.value))}
-              required
-              className="mt-2"
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="deliveryDays">Expected Delivery Days</Label>
-            <Input
-              id="deliveryDays"
-              type="number"
-              min="1"
-              max="365"
-              value={deliveryDays}
-              onChange={(e) => setDeliveryDays(Number(e.target.value))}
-              required
-              className="mt-2"
-            />
-            <p className="text-xs text-muted-foreground mt-1">
-              Expected completion: {new Date(Date.now() + deliveryDays * 24 * 60 * 60 * 1000).toLocaleDateString()}
+        {cartItems.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground mb-4">
+              Your cart is empty. Browse products and add items to cart to place an order.
             </p>
+            <Button onClick={() => window.location.href = "/products"}>
+              Browse Products
+            </Button>
           </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-4">
+              <h3 className="font-semibold">Order Summary</h3>
+              {cartItems.map((item) => (
+                <div key={item.id} className="p-4 bg-muted rounded-lg">
+                  <p className="font-medium">{item.product_name}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Type: {item.product_type} • Size: {item.product_size}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Quantity: {item.quantity}
+                  </p>
+                  {item.notes && (
+                    <p className="text-xs text-muted-foreground mt-2">
+                      {item.notes}
+                    </p>
+                  )}
+                </div>
+              ))}
+              <div className="pt-4 border-t">
+                <p className="font-semibold">
+                  Total Items: {cartItems.reduce((sum, item) => sum + item.quantity, 0)}
+                </p>
+              </div>
+            </div>
 
-          <div>
-            <Label htmlFor="notes">Special Instructions (Optional)</Label>
-            <Textarea
-              id="notes"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Any special requirements or customization..."
-              className="mt-2"
-              rows={3}
-            />
-          </div>
-
-          <Button
-            type="submit"
-            className="w-full bg-gradient-to-r from-primary to-accent"
-            disabled={!product || loading}
-          >
-            {loading ? "Placing Order..." : "Place Order"}
-          </Button>
-        </form>
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Placing Order..." : "Confirm Order"}
+            </Button>
+          </form>
+        )}
       </CardContent>
     </Card>
   );

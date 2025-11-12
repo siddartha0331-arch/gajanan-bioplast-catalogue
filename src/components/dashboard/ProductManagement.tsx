@@ -147,7 +147,7 @@ const ProductManagement = () => {
           name: formData.get("name") as string,
           type: formData.get("type") as string,
           size: formData.get("size") as string,
-          price: Number(formData.get("price")),
+          price: 0,
           description: formData.get("description") as string,
           image: imageUrls[0] || "/placeholder.svg",
           images: imageUrls,
@@ -207,7 +207,7 @@ const ProductManagement = () => {
           name: formData.get("name") as string,
           type: formData.get("type") as string,
           size: formData.get("size") as string,
-          price: Number(formData.get("price")),
+          price: 0,
           description: formData.get("description") as string,
           image: imageUrls[0] || "/placeholder.svg",
           images: imageUrls,
@@ -362,30 +362,15 @@ const ProductManagement = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="size">Size</Label>
-                  <Input
-                    id="size"
-                    name="size"
-                    defaultValue={editingProduct?.size}
-                    required
-                    className="mt-2"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="price">Price (₹)</Label>
-                  <Input
-                    id="price"
-                    name="price"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    defaultValue={editingProduct?.price}
-                    required
-                    className="mt-2"
-                  />
-                </div>
+              <div>
+                <Label htmlFor="size">Size</Label>
+                <Input
+                  id="size"
+                  name="size"
+                  defaultValue={editingProduct?.size}
+                  required
+                  className="mt-2"
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -659,10 +644,7 @@ const ProductManagement = () => {
               )}
             </div>
             <CardHeader>
-              <CardTitle className="flex justify-between items-start">
-                <span className="text-lg">{product.name}</span>
-                <span className="text-primary font-bold">₹{product.price}</span>
-              </CardTitle>
+              <CardTitle className="text-lg">{product.name}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2 mb-4">

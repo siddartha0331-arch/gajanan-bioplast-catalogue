@@ -34,7 +34,6 @@ const PlaceOrder = ({ userId }: PlaceOrderProps) => {
 
     setLoading(true);
 
-    const totalPrice = product.price * quantity;
     const expectedCompletionDate = new Date();
     expectedCompletionDate.setDate(expectedCompletionDate.getDate() + deliveryDays);
 
@@ -44,8 +43,8 @@ const PlaceOrder = ({ userId }: PlaceOrderProps) => {
       product_type: product.type,
       product_size: product.size,
       quantity,
-      price_per_unit: product.price,
-      total_price: totalPrice,
+      price_per_unit: 0,
+      total_price: 0,
       delivery_days: deliveryDays,
       expected_completion_date: expectedCompletionDate.toISOString(),
       notes: notes.trim() || null,
@@ -80,7 +79,7 @@ const PlaceOrder = ({ userId }: PlaceOrderProps) => {
               <SelectContent>
                 {products.map((p) => (
                   <SelectItem key={p.id} value={p.id}>
-                    {p.name} ({p.size}) - ₹{p.price}
+                    {p.name} ({p.size})
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -94,7 +93,6 @@ const PlaceOrder = ({ userId }: PlaceOrderProps) => {
                 Type: {product.type} • Size: {product.size}
               </p>
               <p className="text-sm text-muted-foreground">{product.description}</p>
-              <p className="text-lg font-bold text-primary mt-2">₹{product.price} per unit</p>
             </div>
           )}
 
@@ -127,15 +125,6 @@ const PlaceOrder = ({ userId }: PlaceOrderProps) => {
               Expected completion: {new Date(Date.now() + deliveryDays * 24 * 60 * 60 * 1000).toLocaleDateString()}
             </p>
           </div>
-
-          {product && (
-            <div className="p-4 bg-primary/10 rounded-lg">
-              <p className="text-sm font-medium">Total Amount</p>
-              <p className="text-3xl font-bold text-primary">
-                ₹{(product.price * quantity).toFixed(2)}
-              </p>
-            </div>
-          )}
 
           <div>
             <Label htmlFor="notes">Special Instructions (Optional)</Label>

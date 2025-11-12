@@ -101,14 +101,8 @@ const OrdersList = ({ userId, isAdmin }: OrdersListProps) => {
             <CardContent>
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-2xl font-bold text-primary">
-                    ₹{Number(order.total_price).toFixed(2)}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    ₹{Number(order.price_per_unit).toFixed(2)} per unit
-                  </p>
                   {order.notes && (
-                    <p className="text-sm mt-2 text-muted-foreground">
+                    <p className="text-sm text-muted-foreground">
                       Note: {order.notes}
                     </p>
                   )}

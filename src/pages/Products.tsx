@@ -213,7 +213,10 @@ const ProductCard = ({ product, index, user, navigate }: {
                 {user ? (
                   <Button
                     ref={magneticRef}
-                    onClick={() => navigate("/dashboard")}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate("/dashboard");
+                    }}
                     className="flex-1 magnetic-area bg-gradient-to-r from-primary via-accent to-secondary hover:shadow-glow text-white"
                   >
                     Order Now

@@ -430,7 +430,7 @@ const ProductManagement = () => {
                 <Textarea
                   id="features"
                   name="features"
-                  defaultValue={editingProduct?.features?.join(', ')}
+                  defaultValue={Array.isArray(editingProduct?.features) ? editingProduct.features.join(', ') : ''}
                   placeholder="Eco-friendly, Reusable, Strong handles"
                   className="mt-2"
                   rows={2}
@@ -442,7 +442,7 @@ const ProductManagement = () => {
                 <Textarea
                   id="printing_options"
                   name="printing_options"
-                  defaultValue={editingProduct?.printing_options?.join(', ')}
+                  defaultValue={Array.isArray(editingProduct?.printing_options) ? editingProduct.printing_options.join(', ') : ''}
                   placeholder="Screen Printing, Flexo Printing, Digital Print"
                   className="mt-2"
                   rows={2}
@@ -457,7 +457,7 @@ const ProductManagement = () => {
                 <Textarea
                   id="dimensions"
                   name="dimensions"
-                  defaultValue={editingProduct?.dimensions?.join(', ')}
+                  defaultValue={Array.isArray(editingProduct?.dimensions) ? editingProduct.dimensions.join(', ') : ''}
                   placeholder="10x15, 12x18, 15x21, 19x22"
                   className="mt-2"
                   rows={2}
@@ -672,7 +672,7 @@ const ProductManagement = () => {
                 <p className="text-sm text-muted-foreground">
                   MOQ: {product.moq} • Delivery: {product.delivery_days}
                 </p>
-                {product.dimensions && product.dimensions.length > 0 && (
+                {Array.isArray(product.dimensions) && product.dimensions.length > 0 && (
                   <p className="text-xs text-muted-foreground">
                     Available Sizes: {product.dimensions.join(', ')}
                   </p>

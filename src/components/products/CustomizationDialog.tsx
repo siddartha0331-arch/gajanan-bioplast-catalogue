@@ -46,7 +46,13 @@ export const CustomizationDialog = ({ product, children }: CustomizationDialogPr
   const [logoFile, setLogoFile] = useState<string>("");
   const [customText, setCustomText] = useState("");
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
-  const [selectedSize, setSelectedSize] = useState(product.dimensions?.[0] || "");
+  
+  // Handle dimensions - ensure it's an array and has a default
+  const productDimensions = Array.isArray(product.dimensions) && product.dimensions.length > 0 
+    ? product.dimensions 
+    : [product.size || "Standard"];
+  
+  const [selectedSize, setSelectedSize] = useState(productDimensions[0]);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -68,11 +74,6 @@ export const CustomizationDialog = ({ product, children }: CustomizationDialogPr
   };
 
   const addToCart = async () => {
-    if (!selectedSize) {
-      toast.error("Please select a size");
-      return;
-    }
-
     setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -153,24 +154,22 @@ export const CustomizationDialog = ({ product, children }: CustomizationDialogPr
           {/* Right Column - Customization Options */}
           <div className="space-y-6">
             {/* Size Selection */}
-            {product.dimensions && product.dimensions.length > 0 && (
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-primary" />
-                  Size
-                </Label>
-                <RadioGroup value={selectedSize} onValueChange={setSelectedSize}>
-                  {product.dimensions.map((size) => (
-                    <div key={size} className="flex items-center space-x-2">
-                      <RadioGroupItem value={size} id={`size-${size}`} />
-                      <Label htmlFor={`size-${size}`} className="cursor-pointer">
-                        {size}
-                      </Label>
-                    </div>
-                  ))}
-                </RadioGroup>
-              </div>
-            )}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-primary" />
+                Size
+              </Label>
+              <RadioGroup value={selectedSize} onValueChange={setSelectedSize}>
+                {productDimensions.map((size) => (
+                  <div key={size} className="flex items-center space-x-2">
+                    <RadioGroupItem value={size} id={`size-${size}`} />
+                    <Label htmlFor={`size-${size}`} className="cursor-pointer">
+                      {size}
+                    </Label>
+                  </div>
+                ))}
+              </RadioGroup>
+            </div>
 
             {/* Quantity */}
             <div className="space-y-2">

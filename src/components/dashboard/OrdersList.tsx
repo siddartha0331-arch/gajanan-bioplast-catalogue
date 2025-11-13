@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, Download, Package } from "lucide-react";
 
 interface OrdersListProps {
   userId: string;
@@ -20,6 +20,7 @@ interface OrdersListProps {
 
 const OrdersList = ({ userId, isAdmin }: OrdersListProps) => {
   const [orders, setOrders] = useState<any[]>([]);
+  const [orderItems, setOrderItems] = useState<Record<string, any[]>>({});
   const [loading, setLoading] = useState(true);
 
   const fetchOrders = async () => {
@@ -46,6 +47,18 @@ const OrdersList = ({ userId, isAdmin }: OrdersListProps) => {
       toast.error("Error loading orders");
     } else {
       setOrders(data || []);
+      // Fetch order items for each order
+      if (data) {
+        const itemsMap: Record<string, any[]> = {};
+        for (const order of data) {
+          const { data: items } = await supabase
+            .from("order_items")
+            .select("*")
+            .eq("order_id", order.id);
+          itemsMap[order.id] = items || [];
+        }
+        setOrderItems(itemsMap);
+      }
     }
     setLoading(false);
   };
@@ -65,6 +78,29 @@ const OrdersList = ({ userId, isAdmin }: OrdersListProps) => {
     } else {
       toast.success("Order status updated");
       fetchOrders();
+    }
+  };
+
+  const downloadLogo = async (logoUrl: string, productName: string) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from('customer-logos')
+        .download(logoUrl);
+
+      if (error) throw error;
+
+      const url = URL.createObjectURL(data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${productName}-logo`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast.success("Logo downloaded successfully");
+    } catch (error) {
+      console.error("Error downloading logo:", error);
+      toast.error("Failed to download logo");
     }
   };
 
@@ -113,6 +149,48 @@ const OrdersList = ({ userId, isAdmin }: OrdersListProps) => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
+                {/* Order Items */}
+                {orderItems[order.id] && orderItems[order.id].length > 0 && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Package className="w-4 h-4 text-primary" />
+                      <p className="font-semibold text-sm">Order Items:</p>
+                    </div>
+                    {orderItems[order.id].map((item) => (
+                      <div key={item.id} className="p-3 bg-muted/50 rounded-lg space-y-2">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p className="font-medium text-sm">{item.product_name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {item.product_type} • Size: {item.product_size} • Qty: {item.quantity}
+                            </p>
+                            {item.custom_text && (
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Custom Text: {item.custom_text}
+                              </p>
+                            )}
+                            {item.notes && (
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {item.notes}
+                              </p>
+                            )}
+                          </div>
+                          {isAdmin && item.logo_url && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => downloadLogo(item.logo_url, item.product_name)}
+                            >
+                              <Download className="w-4 h-4 mr-1" />
+                              Logo
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 <div>
                   {order.notes && (
                     <p className="text-sm text-muted-foreground">

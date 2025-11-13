@@ -43,7 +43,7 @@ export const CustomizationDialog = ({ product, children }: CustomizationDialogPr
   const navigate = useNavigate();
   const [printType, setPrintType] = useState(product.printing_options?.[0] || "Screen Printing");
   const [quantity, setQuantity] = useState(product.moq);
-  const [logoFile, setLogoFile] = useState<string>("");
+  const [logoFile, setLogoFile] = useState<File | null>(null);
   const [customText, setCustomText] = useState("");
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   
@@ -265,13 +265,13 @@ export const CustomizationDialog = ({ product, children }: CustomizationDialogPr
                   id="logo-upload"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
-                    if (file) setLogoFile(file.name);
+                    if (file) setLogoFile(file);
                   }}
                 />
                 <label htmlFor="logo-upload" className="cursor-pointer">
                   <ImageIcon className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
                   <p className="text-sm text-muted-foreground">
-                    {logoFile || "Click to upload your logo"}
+                    {logoFile ? logoFile.name : "Click to upload your logo"}
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
                     PNG, JPG, SVG (Max 5MB)

@@ -81,6 +81,8 @@ const PlaceOrder = ({ userId }: PlaceOrderProps) => {
         product_size: item.product_size,
         quantity: item.quantity,
         notes: item.notes,
+        logo_url: item.logo_url,
+        custom_text: item.notes?.split('Custom Text: ')[1]?.split(' | ')[0] || null,
       }));
 
       const { error: itemsError } = await supabase
@@ -96,6 +98,16 @@ const PlaceOrder = ({ userId }: PlaceOrderProps) => {
         .eq("user_id", userId);
 
       if (clearError) throw clearError;
+
+      // Send WhatsApp notification
+      try {
+        await supabase.functions.invoke('send-whatsapp-notification', {
+          body: { orderId: order.id }
+        });
+      } catch (notifError) {
+        console.error('WhatsApp notification error:', notifError);
+        // Don't fail the order if notification fails
+      }
 
       toast.success("Order placed successfully!");
       fetchCartItems();

@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          logo_url: string | null
           notes: string | null
           product_id: string
           product_name: string
@@ -30,6 +31,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          logo_url?: string | null
           notes?: string | null
           product_id: string
           product_name: string
@@ -42,6 +44,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          logo_url?: string | null
           notes?: string | null
           product_id?: string
           product_name?: string
@@ -94,7 +97,9 @@ export type Database = {
       order_items: {
         Row: {
           created_at: string
+          custom_text: string | null
           id: string
+          logo_url: string | null
           notes: string | null
           order_id: string
           product_id: string
@@ -105,7 +110,9 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          custom_text?: string | null
           id?: string
+          logo_url?: string | null
           notes?: string | null
           order_id: string
           product_id: string
@@ -116,7 +123,9 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          custom_text?: string | null
           id?: string
+          logo_url?: string | null
           notes?: string | null
           order_id?: string
           product_id?: string

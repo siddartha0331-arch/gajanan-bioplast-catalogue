@@ -28,7 +28,7 @@ const OrdersList = ({ userId, isAdmin }: OrdersListProps) => {
       .from("orders")
       .select(`
         *,
-        profiles:user_id (
+        profiles (
           full_name,
           business_name,
           business_type,

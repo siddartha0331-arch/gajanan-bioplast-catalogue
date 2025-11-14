@@ -288,4 +288,10 @@ All colors MUST be HSL.
   .tilt-card:hover .tilt-glow {
     opacity: 1;
   }
+
+  /* Product Wall Active State */
+  .opacity-0.translate-y-8.active {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+  }
 }

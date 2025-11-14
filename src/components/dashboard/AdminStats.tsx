@@ -81,7 +81,7 @@ const AdminStats = ({ onNavigate }: AdminStatsProps) => {
       icon: Users,
       color: "text-purple-500",
       bg: "bg-purple-500/10",
-      action: "orders",
+      action: "customers",
     },
   ];
 

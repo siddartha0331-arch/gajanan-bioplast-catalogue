@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import OrdersList from "./OrdersList";
 import AdminStats from "./AdminStats";
 import ProductManagement from "./ProductManagement";
+import CustomersList from "./CustomersList";
 
 interface AdminDashboardProps {
   user: User;
@@ -53,6 +54,10 @@ const AdminDashboard = ({ user }: AdminDashboardProps) => {
               <Users className="mr-2 h-4 w-4" />
               Statistics
             </TabsTrigger>
+            <TabsTrigger value="customers">
+              <Users className="mr-2 h-4 w-4" />
+              Customers
+            </TabsTrigger>
             <TabsTrigger value="orders">
               <Package className="mr-2 h-4 w-4" />
               All Orders
@@ -65,6 +70,10 @@ const AdminDashboard = ({ user }: AdminDashboardProps) => {
 
           <TabsContent value="stats" className="mt-6">
             <AdminStats onNavigate={setActiveTab} />
+          </TabsContent>
+
+          <TabsContent value="customers" className="mt-6">
+            <CustomersList />
           </TabsContent>
 
           <TabsContent value="orders" className="mt-6">

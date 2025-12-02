@@ -36,13 +36,13 @@ const Home = () => {
               </div>
 
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight tracking-tight">
-                <span className="block text-foreground mb-2">Gajanan Bioplast</span>
+                <span className="block text-gray-900 dark:text-gray-100 mb-2">Gajanan Bioplast</span>
                 <span className="block bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
                   Redefining Packaging Standards
                 </span>
               </h1>
               
-              <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+              <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
                 We craft premium eco-friendly packaging that doesn't just protect your products—it reflects your commitment to sustainability and quality.
               </p>
 
@@ -65,19 +65,19 @@ const Home = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pt-12">
               <div className="space-y-3 animate-fade-in" style={{ animationDelay: "0.1s" }}>
                 <div className="text-4xl font-bold text-primary">500+</div>
-                <div className="text-sm text-muted-foreground font-medium">Satisfied Clients</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400 font-medium">Satisfied Clients</div>
               </div>
               <div className="space-y-3 animate-fade-in" style={{ animationDelay: "0.2s" }}>
                 <div className="text-4xl font-bold text-primary">10+</div>
-                <div className="text-sm text-muted-foreground font-medium">Years Experience</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400 font-medium">Years Experience</div>
               </div>
               <div className="space-y-3 animate-fade-in" style={{ animationDelay: "0.3s" }}>
                 <div className="text-4xl font-bold text-primary">50+</div>
-                <div className="text-sm text-muted-foreground font-medium">Product Variants</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400 font-medium">Product Variants</div>
               </div>
               <div className="space-y-3 animate-fade-in" style={{ animationDelay: "0.4s" }}>
                 <div className="text-4xl font-bold text-primary">100%</div>
-                <div className="text-sm text-muted-foreground font-medium">Eco-Friendly</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400 font-medium">Eco-Friendly</div>
               </div>
             </div>
           </div>
@@ -88,8 +88,8 @@ const Home = () => {
       <section className="py-24 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16 space-y-4 animate-fade-in">
-            <h2 className="text-4xl md:text-5xl font-bold">Why Choose Us</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-100">Why Choose Us</h2>
+            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
               Built on trust, driven by quality, committed to sustainability
             </p>
           </div>
@@ -100,8 +100,8 @@ const Home = () => {
               <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
                 <Shield className="w-7 h-7 text-primary" />
               </div>
-              <h3 className="text-2xl font-bold">Quality First</h3>
-              <p className="text-muted-foreground leading-relaxed">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Quality First</h3>
+              <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                 Every product undergoes rigorous quality checks. We maintain the highest standards in manufacturing, ensuring durability and reliability in every piece.
               </p>
             </Card>
@@ -111,8 +111,8 @@ const Home = () => {
               <div className="w-14 h-14 rounded-2xl bg-secondary/10 flex items-center justify-center">
                 <Recycle className="w-7 h-7 text-secondary" />
               </div>
-              <h3 className="text-2xl font-bold">100% Sustainable</h3>
-              <p className="text-muted-foreground leading-relaxed">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">100% Sustainable</h3>
+              <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                 Our biodegradable materials break down naturally, leaving zero environmental footprint. We're not just selling bags—we're protecting our planet.
               </p>
             </Card>
@@ -122,8 +122,8 @@ const Home = () => {
               <div className="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center">
                 <Award className="w-7 h-7 text-accent" />
               </div>
-              <h3 className="text-2xl font-bold">Certified & Trusted</h3>
-              <p className="text-muted-foreground leading-relaxed">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Certified & Trusted</h3>
+              <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                 ISO certified and compliant with all environmental regulations. Our certifications speak to our commitment to excellence and transparency.
               </p>
             </Card>
@@ -133,8 +133,8 @@ const Home = () => {
               <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
                 <Target className="w-7 h-7 text-primary" />
               </div>
-              <h3 className="text-2xl font-bold">Custom Solutions</h3>
-              <p className="text-muted-foreground leading-relaxed">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Custom Solutions</h3>
+              <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                 From custom sizes to branded printing, we tailor our products to match your exact specifications. Your vision, our expertise.
               </p>
             </Card>
@@ -144,8 +144,8 @@ const Home = () => {
               <div className="w-14 h-14 rounded-2xl bg-secondary/10 flex items-center justify-center">
                 <Users className="w-7 h-7 text-secondary" />
               </div>
-              <h3 className="text-2xl font-bold">Client Focused</h3>
-              <p className="text-muted-foreground leading-relaxed">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Client Focused</h3>
+              <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                 Our 500+ satisfied clients trust us for consistent quality, timely delivery, and exceptional service. Your success is our priority.
               </p>
             </Card>
@@ -155,8 +155,8 @@ const Home = () => {
               <div className="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center">
                 <Heart className="w-7 h-7 text-accent" />
               </div>
-              <h3 className="text-2xl font-bold">Built to Last</h3>
-              <p className="text-muted-foreground leading-relaxed">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Built to Last</h3>
+              <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                 Over a decade of experience in sustainable packaging. We've grown with our clients, building lasting relationships based on trust and quality.
               </p>
             </Card>
@@ -165,8 +165,8 @@ const Home = () => {
           {/* Process Overview */}
           <div className="mt-24 max-w-4xl mx-auto">
             <div className="text-center mb-12 space-y-4">
-              <h3 className="text-3xl md:text-4xl font-bold">Our Promise</h3>
-              <p className="text-lg text-muted-foreground">
+              <h3 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100">Our Promise</h3>
+              <p className="text-lg text-gray-600 dark:text-gray-400">
                 Simple, transparent, and reliable
               </p>
             </div>
@@ -176,8 +176,8 @@ const Home = () => {
                 <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
                   <CheckCircle2 className="w-6 h-6 text-primary" />
                 </div>
-                <h4 className="font-bold text-lg">Premium Materials</h4>
-                <p className="text-sm text-muted-foreground">
+                <h4 className="font-bold text-lg text-gray-900 dark:text-gray-100">Premium Materials</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                   Only the finest biodegradable materials that meet international standards
                 </p>
               </div>
@@ -186,8 +186,8 @@ const Home = () => {
                 <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
                   <CheckCircle2 className="w-6 h-6 text-primary" />
                 </div>
-                <h4 className="font-bold text-lg">Timely Delivery</h4>
-                <p className="text-sm text-muted-foreground">
+                <h4 className="font-bold text-lg text-gray-900 dark:text-gray-100">Timely Delivery</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                   Efficient production and logistics ensure your orders arrive on schedule
                 </p>
               </div>
@@ -196,8 +196,8 @@ const Home = () => {
                 <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
                   <CheckCircle2 className="w-6 h-6 text-primary" />
                 </div>
-                <h4 className="font-bold text-lg">Dedicated Support</h4>
-                <p className="text-sm text-muted-foreground">
+                <h4 className="font-bold text-lg text-gray-900 dark:text-gray-100">Dedicated Support</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                   Our team is always ready to assist with orders, customization, and inquiries
                 </p>
               </div>
@@ -214,8 +214,8 @@ const Home = () => {
               <Package className="w-4 h-4 text-secondary" />
               <span className="text-sm font-bold text-secondary">Our Range</span>
             </div>
-            <h2 className="text-5xl md:text-6xl font-black">Product Gallery</h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            <h2 className="text-5xl md:text-6xl font-black text-gray-900 dark:text-gray-100">Product Gallery</h2>
+            <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
               Discover our complete range of eco-friendly packaging solutions
             </p>
           </div>
@@ -254,7 +254,7 @@ const Home = () => {
               </span>
             </h2>
             
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-xl text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
               Join hundreds of businesses making the sustainable choice. Get a custom quote today.
             </p>
 

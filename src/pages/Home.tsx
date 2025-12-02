@@ -1,16 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowRight, Sparkles, TrendingUp, Package, Leaf } from "lucide-react";
+import { ArrowRight, Package, Leaf, Shield, Award, Users, Recycle, CheckCircle2, Target, Heart, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useTiltEffect } from "@/hooks/useTiltEffect";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 const Home = () => {
-  const [activeProduct, setActiveProduct] = useState(0);
-  const heroRef = useRef<HTMLDivElement>(null);
-  
   // Fetch all products
   const { data: products = [] } = useQuery({
     queryKey: ["products"],
@@ -25,121 +21,187 @@ const Home = () => {
     },
   });
 
-  // New arrivals (latest 6 products)
-  const newArrivals = products.slice(0, 6);
-  
-  // Featured products (mix of different types)
-  const featuredProducts = products.filter((_, index) => index % 2 === 0).slice(0, 4);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveProduct((prev) => (prev + 1) % Math.min(4, products.length));
-    }, 4000);
-    return () => clearInterval(interval);
-  }, [products.length]);
-
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero Section - Split Screen Product Showcase */}
-      <section ref={heroRef} className="relative min-h-screen flex items-center overflow-hidden pt-20">
-        {/* Animated Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-secondary/5" />
-        <div className="absolute inset-0">
-          <div className="absolute top-20 right-10 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-20 left-10 w-96 h-96 bg-secondary/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
-        </div>
-
+      {/* Hero Section - Brand Story */}
+      <section className="relative min-h-screen flex items-center overflow-hidden pt-20">
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-background to-background" />
+        
         <div className="container mx-auto px-4 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left - Content */}
-            <div className="space-y-8">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full border border-primary/20">
+          <div className="max-w-5xl mx-auto text-center space-y-12">
+            <div className="space-y-8 animate-fade-in">
+              <div className="inline-flex items-center gap-2 px-5 py-2 bg-primary/10 rounded-full border border-primary/20">
                 <Leaf className="w-4 h-4 text-primary" />
-                <span className="text-sm font-bold text-primary">Eco-Friendly Packaging</span>
+                <span className="text-sm font-semibold text-primary">Sustainable Packaging Solutions</span>
               </div>
 
-              <div className="space-y-6">
-                <h1 className="text-6xl md:text-7xl lg:text-8xl font-black leading-[0.9] tracking-tight">
-                  <span className="block text-foreground">Gajanan</span>
-                  <span className="block bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
-                    Bioplast
-                  </span>
-                </h1>
-                
-                <p className="text-xl md:text-2xl text-muted-foreground font-medium max-w-xl">
-                  Crafting sustainable packaging solutions that protect your products and our planet
-                </p>
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight tracking-tight">
+                <span className="block text-foreground mb-2">Gajanan Bioplast</span>
+                <span className="block bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
+                  Redefining Packaging Standards
+                </span>
+              </h1>
+              
+              <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+                We craft premium eco-friendly packaging that doesn't just protect your products—it reflects your commitment to sustainability and quality.
+              </p>
 
-                <div className="flex flex-wrap gap-4 pt-4">
-                  <Link to="/products">
-                    <Button size="lg" className="group text-lg px-8 py-6 rounded-full">
-                      Explore Products
-                      <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                    </Button>
-                  </Link>
-                  <Link to="/contact">
-                    <Button size="lg" variant="outline" className="text-lg px-8 py-6 rounded-full">
-                      Get Quote
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-
-              {/* Stats */}
-              <div className="grid grid-cols-3 gap-6 pt-8">
-                <div className="space-y-1">
-                  <div className="text-3xl font-black text-primary">500+</div>
-                  <div className="text-sm text-muted-foreground">Happy Clients</div>
-                </div>
-                <div className="space-y-1">
-                  <div className="text-3xl font-black text-primary">50+</div>
-                  <div className="text-sm text-muted-foreground">Products</div>
-                </div>
-                <div className="space-y-1">
-                  <div className="text-3xl font-black text-primary">100%</div>
-                  <div className="text-sm text-muted-foreground">Eco-Friendly</div>
-                </div>
+              <div className="flex flex-wrap gap-4 justify-center pt-6">
+                <Link to="/products">
+                  <Button size="lg" className="text-lg px-8 py-6 rounded-full shadow-lg hover:shadow-xl transition-shadow">
+                    Explore Products
+                    <ArrowRight className="ml-2 w-5 h-5" />
+                  </Button>
+                </Link>
+                <Link to="/contact">
+                  <Button size="lg" variant="outline" className="text-lg px-8 py-6 rounded-full">
+                    Get Custom Quote
+                  </Button>
+                </Link>
               </div>
             </div>
 
-            {/* Right - Product Showcase */}
-            <div className="relative h-[600px] lg:h-[700px]">
-              {featuredProducts.slice(0, 4).map((product, index) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  isActive={activeProduct === index}
-                  index={index}
-                />
-              ))}
+            {/* Trust Indicators */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pt-12">
+              <div className="space-y-3 animate-fade-in" style={{ animationDelay: "0.1s" }}>
+                <div className="text-4xl font-bold text-primary">500+</div>
+                <div className="text-sm text-muted-foreground font-medium">Satisfied Clients</div>
+              </div>
+              <div className="space-y-3 animate-fade-in" style={{ animationDelay: "0.2s" }}>
+                <div className="text-4xl font-bold text-primary">10+</div>
+                <div className="text-sm text-muted-foreground font-medium">Years Experience</div>
+              </div>
+              <div className="space-y-3 animate-fade-in" style={{ animationDelay: "0.3s" }}>
+                <div className="text-4xl font-bold text-primary">50+</div>
+                <div className="text-sm text-muted-foreground font-medium">Product Variants</div>
+              </div>
+              <div className="space-y-3 animate-fade-in" style={{ animationDelay: "0.4s" }}>
+                <div className="text-4xl font-bold text-primary">100%</div>
+                <div className="text-sm text-muted-foreground font-medium">Eco-Friendly</div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* New Arrivals - Bento Grid */}
+      {/* Values & Quality Section */}
       <section className="py-24 bg-muted/30">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between mb-12">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-6 h-6 text-primary" />
-                <h2 className="text-5xl font-black">New Arrivals</h2>
-              </div>
-              <p className="text-muted-foreground text-lg">Latest additions to our collection</p>
-            </div>
-            <Link to="/products">
-              <Button variant="ghost" className="group">
-                View All
-                <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </Link>
+          <div className="text-center mb-16 space-y-4 animate-fade-in">
+            <h2 className="text-4xl md:text-5xl font-bold">Why Choose Us</h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Built on trust, driven by quality, committed to sustainability
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {newArrivals.map((product, index) => (
-              <NewArrivalCard key={product.id} product={product} delay={index * 0.1} />
-            ))}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {/* Quality Commitment */}
+            <Card className="p-8 space-y-4 border-2 hover:border-primary/50 transition-colors animate-fade-in" style={{ animationDelay: "0.1s" }}>
+              <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
+                <Shield className="w-7 h-7 text-primary" />
+              </div>
+              <h3 className="text-2xl font-bold">Quality First</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Every product undergoes rigorous quality checks. We maintain the highest standards in manufacturing, ensuring durability and reliability in every piece.
+              </p>
+            </Card>
+
+            {/* Eco-Friendly */}
+            <Card className="p-8 space-y-4 border-2 hover:border-primary/50 transition-colors animate-fade-in" style={{ animationDelay: "0.2s" }}>
+              <div className="w-14 h-14 rounded-2xl bg-secondary/10 flex items-center justify-center">
+                <Recycle className="w-7 h-7 text-secondary" />
+              </div>
+              <h3 className="text-2xl font-bold">100% Sustainable</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Our biodegradable materials break down naturally, leaving zero environmental footprint. We're not just selling bags—we're protecting our planet.
+              </p>
+            </Card>
+
+            {/* Certified Excellence */}
+            <Card className="p-8 space-y-4 border-2 hover:border-primary/50 transition-colors animate-fade-in" style={{ animationDelay: "0.3s" }}>
+              <div className="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center">
+                <Award className="w-7 h-7 text-accent" />
+              </div>
+              <h3 className="text-2xl font-bold">Certified & Trusted</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                ISO certified and compliant with all environmental regulations. Our certifications speak to our commitment to excellence and transparency.
+              </p>
+            </Card>
+
+            {/* Custom Solutions */}
+            <Card className="p-8 space-y-4 border-2 hover:border-primary/50 transition-colors animate-fade-in" style={{ animationDelay: "0.4s" }}>
+              <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
+                <Target className="w-7 h-7 text-primary" />
+              </div>
+              <h3 className="text-2xl font-bold">Custom Solutions</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                From custom sizes to branded printing, we tailor our products to match your exact specifications. Your vision, our expertise.
+              </p>
+            </Card>
+
+            {/* Customer First */}
+            <Card className="p-8 space-y-4 border-2 hover:border-primary/50 transition-colors animate-fade-in" style={{ animationDelay: "0.5s" }}>
+              <div className="w-14 h-14 rounded-2xl bg-secondary/10 flex items-center justify-center">
+                <Users className="w-7 h-7 text-secondary" />
+              </div>
+              <h3 className="text-2xl font-bold">Client Focused</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Our 500+ satisfied clients trust us for consistent quality, timely delivery, and exceptional service. Your success is our priority.
+              </p>
+            </Card>
+
+            {/* Reliable Partner */}
+            <Card className="p-8 space-y-4 border-2 hover:border-primary/50 transition-colors animate-fade-in" style={{ animationDelay: "0.6s" }}>
+              <div className="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center">
+                <Heart className="w-7 h-7 text-accent" />
+              </div>
+              <h3 className="text-2xl font-bold">Built to Last</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Over a decade of experience in sustainable packaging. We've grown with our clients, building lasting relationships based on trust and quality.
+              </p>
+            </Card>
+          </div>
+
+          {/* Process Overview */}
+          <div className="mt-24 max-w-4xl mx-auto">
+            <div className="text-center mb-12 space-y-4">
+              <h3 className="text-3xl md:text-4xl font-bold">Our Promise</h3>
+              <p className="text-lg text-muted-foreground">
+                Simple, transparent, and reliable
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="text-center space-y-3 animate-fade-in" style={{ animationDelay: "0.2s" }}>
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                  <CheckCircle2 className="w-6 h-6 text-primary" />
+                </div>
+                <h4 className="font-bold text-lg">Premium Materials</h4>
+                <p className="text-sm text-muted-foreground">
+                  Only the finest biodegradable materials that meet international standards
+                </p>
+              </div>
+              
+              <div className="text-center space-y-3 animate-fade-in" style={{ animationDelay: "0.3s" }}>
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                  <CheckCircle2 className="w-6 h-6 text-primary" />
+                </div>
+                <h4 className="font-bold text-lg">Timely Delivery</h4>
+                <p className="text-sm text-muted-foreground">
+                  Efficient production and logistics ensure your orders arrive on schedule
+                </p>
+              </div>
+              
+              <div className="text-center space-y-3 animate-fade-in" style={{ animationDelay: "0.4s" }}>
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                  <CheckCircle2 className="w-6 h-6 text-primary" />
+                </div>
+                <h4 className="font-bold text-lg">Dedicated Support</h4>
+                <p className="text-sm text-muted-foreground">
+                  Our team is always ready to assist with orders, customization, and inquiries
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -212,102 +274,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-    </div>
-  );
-};
-
-// Floating Product Card Component
-const ProductCard = ({ product, isActive, index }: any) => {
-  const tiltRef = useTiltEffect<HTMLDivElement>();
-  
-  const positions = [
-    { top: "10%", right: "10%", rotate: "12deg" },
-    { top: "25%", right: "25%", rotate: "-8deg" },
-    { top: "40%", right: "15%", rotate: "6deg" },
-    { top: "55%", right: "30%", rotate: "-10deg" },
-  ];
-
-  const position = positions[index % 4];
-
-  return (
-    <div
-      ref={tiltRef}
-      className={`absolute transition-all duration-1000 ${
-        isActive ? "opacity-100 scale-100 z-20" : "opacity-0 scale-90 z-10"
-      }`}
-      style={{ ...position }}
-    >
-      <Card className="w-80 overflow-hidden shadow-2xl border-2 border-primary/20 tilt-card">
-        <div className="relative h-80 group">
-          <img
-            src={product.image}
-            alt={product.name}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 p-6 space-y-3">
-            <div className="inline-block px-3 py-1 bg-primary/90 rounded-full text-xs font-bold text-primary-foreground">
-              {product.type}
-            </div>
-            <h3 className="text-2xl font-black text-white">{product.name}</h3>
-            <p className="text-white/80 text-sm line-clamp-2">{product.description}</p>
-            <div className="flex items-center justify-between pt-2">
-              <span className="text-2xl font-black text-white">₹{product.price}</span>
-              <Link to="/products">
-                <Button size="sm" className="rounded-full">
-                  View Details
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </Card>
-    </div>
-  );
-};
-
-// New Arrival Card
-const NewArrivalCard = ({ product, delay }: any) => {
-  const tiltRef = useTiltEffect<HTMLDivElement>();
-  
-  return (
-    <div
-      ref={tiltRef}
-      className="animate-fade-in tilt-card"
-      style={{ animationDelay: `${delay}s` }}
-    >
-      <Card className="group overflow-hidden hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-primary/20">
-        <div className="relative h-72 overflow-hidden">
-          <img
-            src={product.image}
-            alt={product.name}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-          />
-          <div className="absolute top-4 right-4 px-3 py-1 bg-primary rounded-full text-xs font-bold text-primary-foreground">
-            NEW
-          </div>
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-        </div>
-        <div className="p-6 space-y-4">
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-muted-foreground">{product.type}</span>
-              <span className="text-sm text-muted-foreground">{product.size}</span>
-            </div>
-            <h3 className="text-xl font-black line-clamp-1">{product.name}</h3>
-            <p className="text-sm text-muted-foreground line-clamp-2">{product.description}</p>
-          </div>
-          <div className="flex items-center justify-between pt-2">
-            <span className="text-2xl font-black text-primary">₹{product.price}</span>
-            <Link to="/products">
-              <Button size="sm" variant="outline" className="rounded-full">
-                View
-                <ArrowRight className="ml-1 w-3 h-3" />
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </Card>
     </div>
   );
 };

@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LogOut, ShoppingBag, Settings, Package, User as UserIcon, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
@@ -12,6 +11,7 @@ import PlaceOrder from "./PlaceOrder";
 import CustomerPreferences from "./CustomerPreferences";
 import CustomerProfile from "./CustomerProfile";
 import Cart from "./Cart";
+import NotificationBell from "./NotificationBell";
 
 interface CustomerDashboardProps {
   user: User;
@@ -57,10 +57,13 @@ const CustomerDashboard = ({ user }: CustomerDashboardProps) => {
               Welcome back, {profile?.full_name || user.email}
             </p>
           </div>
-          <Button variant="outline" onClick={handleSignOut}>
-            <LogOut className="mr-2 h-4 w-4" />
-            Sign Out
-          </Button>
+          <div className="flex items-center gap-2">
+            <NotificationBell userId={user.id} />
+            <Button variant="outline" onClick={handleSignOut}>
+              <LogOut className="mr-2 h-4 w-4" />
+              Sign Out
+            </Button>
+          </div>
         </div>
 
         <Tabs defaultValue="cart" className="w-full">

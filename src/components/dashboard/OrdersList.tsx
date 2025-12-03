@@ -13,6 +13,7 @@ import {
 import { toast } from "sonner";
 import { Loader2, Download, Package } from "lucide-react";
 import { createNotification } from "@/hooks/useNotifications";
+import OrderMessages from "./OrderMessages";
 
 interface OrdersListProps {
   userId: string;
@@ -263,8 +264,16 @@ const OrdersList = ({ userId, isAdmin }: OrdersListProps) => {
                   </div>
                 )}
 
-                {isAdmin && (
-                  <div className="flex justify-end pt-2">
+                <div className="flex justify-between items-center pt-2 gap-2">
+                  <OrderMessages
+                    orderId={order.id}
+                    currentUserId={userId}
+                    otherUserId={isAdmin ? order.user_id : undefined}
+                    otherUserName={isAdmin ? order.profiles?.full_name || order.profiles?.business_name : undefined}
+                    isAdmin={isAdmin}
+                  />
+                  
+                  {isAdmin && (
                     <Select
                       value={order.status}
                       onValueChange={(value) => updateOrderStatus(order.id, value)}
@@ -280,8 +289,8 @@ const OrdersList = ({ userId, isAdmin }: OrdersListProps) => {
                         <SelectItem value="cancelled">Cancelled</SelectItem>
                       </SelectContent>
                     </Select>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>

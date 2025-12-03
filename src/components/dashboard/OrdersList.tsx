@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Loader2, Download, Package } from "lucide-react";
+import { createNotification } from "@/hooks/useNotifications";
 
 interface OrdersListProps {
   userId: string;
@@ -68,6 +69,9 @@ const OrdersList = ({ userId, isAdmin }: OrdersListProps) => {
   }, [userId, isAdmin]);
 
   const updateOrderStatus = async (orderId: string, status: string) => {
+    // Get order details first to notify the customer
+    const order = orders.find(o => o.id === orderId);
+    
     const { error } = await supabase
       .from("orders")
       .update({ status })
@@ -77,6 +81,26 @@ const OrdersList = ({ userId, isAdmin }: OrdersListProps) => {
       toast.error("Error updating order");
     } else {
       toast.success("Order status updated");
+      
+      // Notify the customer about status change
+      if (order) {
+        const statusMessages: Record<string, string> = {
+          pending: "Your order is pending review.",
+          confirmed: "Great news! Your order has been confirmed.",
+          processing: "Your order is now being processed.",
+          completed: "Your order has been completed and is ready!",
+          cancelled: "Your order has been cancelled. Please contact us for details.",
+        };
+        
+        await createNotification(
+          order.user_id,
+          `Order Status: ${status.charAt(0).toUpperCase() + status.slice(1)}`,
+          statusMessages[status] || `Your order status has been updated to ${status}.`,
+          "order",
+          orderId
+        );
+      }
+      
       fetchOrders();
     }
   };

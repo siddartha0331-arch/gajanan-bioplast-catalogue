@@ -1,8 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LogOut, Package, Users, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
@@ -11,6 +10,7 @@ import OrdersList from "./OrdersList";
 import AdminStats from "./AdminStats";
 import ProductManagement from "./ProductManagement";
 import CustomersList from "./CustomersList";
+import NotificationBell from "./NotificationBell";
 
 interface AdminDashboardProps {
   user: User;
@@ -42,10 +42,13 @@ const AdminDashboard = ({ user }: AdminDashboardProps) => {
               Manage orders and view statistics
             </p>
           </div>
-          <Button variant="outline" onClick={handleSignOut} className="shrink-0">
-            <LogOut className="mr-2 h-4 w-4" />
-            Sign Out
-          </Button>
+          <div className="flex items-center gap-2">
+            <NotificationBell userId={user.id} />
+            <Button variant="outline" onClick={handleSignOut} className="shrink-0">
+              <LogOut className="mr-2 h-4 w-4" />
+              Sign Out
+            </Button>
+          </div>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

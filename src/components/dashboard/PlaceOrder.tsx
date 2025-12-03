@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { notifyAdminNewOrder } from "@/hooks/useNotifications";
 
 interface PlaceOrderProps {
   userId: string;
@@ -108,6 +109,10 @@ const PlaceOrder = ({ userId }: PlaceOrderProps) => {
         console.error('WhatsApp notification error:', notifError);
         // Don't fail the order if notification fails
       }
+
+      // Notify admins about new order
+      const customerName = profile?.business_name || profile?.full_name || "A customer";
+      await notifyAdminNewOrder(order.id, customerName);
 
       toast.success("Order placed successfully!");
       fetchCartItems();

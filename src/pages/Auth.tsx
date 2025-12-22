@@ -9,6 +9,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { z } from "zod";
+import { ForgotPasswordDialog } from "@/components/auth/ForgotPasswordDialog";
+import { PasswordStrengthIndicator } from "@/components/auth/PasswordStrengthIndicator";
 
 const authSchema = z.object({
   email: z.string().trim().email({ message: "Invalid email address" }).max(255),
@@ -20,6 +22,7 @@ const Auth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(false);
+  const [signupPassword, setSignupPassword] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -174,9 +177,16 @@ const Auth = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signin-password" className="text-sm font-semibold text-foreground/90">
-                      Password
-                    </Label>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="signin-password" className="text-sm font-semibold text-foreground/90">
+                        Password
+                      </Label>
+                      <ForgotPasswordDialog>
+                        <button type="button" className="text-sm text-primary hover:underline">
+                          Forgot Password?
+                        </button>
+                      </ForgotPasswordDialog>
+                    </div>
                     <Input
                       id="signin-password"
                       name="password"
@@ -234,8 +244,11 @@ const Auth = () => {
                       type="password"
                       placeholder="••••••••"
                       required
+                      value={signupPassword}
+                      onChange={(e) => setSignupPassword(e.target.value)}
                       className="h-12 bg-background/50 border-primary/20 focus:border-primary transition-all duration-300 focus:shadow-glow"
                     />
+                    <PasswordStrengthIndicator password={signupPassword} />
                   </div>
                   <Button
                     type="submit"

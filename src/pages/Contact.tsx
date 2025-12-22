@@ -6,20 +6,22 @@ import { Label } from "@/components/ui/label";
 import { MapPin, Phone, MessageCircle } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { FAQ } from "@/components/contact/FAQ";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    phone: "",
     message: "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const whatsappMessage = `Hello Gajanan Bioplast,%0A%0AName: ${formData.name}%0AEmail: ${formData.email}%0A%0AMessage: ${formData.message}`;
+    const whatsappMessage = `Hello Gajanan Bioplast,%0A%0AName: ${formData.name}%0AEmail: ${formData.email}%0APhone: ${formData.phone}%0A%0AMessage: ${formData.message}`;
     window.open(`https://wa.me/919834711168?text=${whatsappMessage}`, "_blank");
     toast.success("Redirecting to WhatsApp...");
-    setFormData({ name: "", email: "", message: "" });
+    setFormData({ name: "", email: "", phone: "", message: "" });
   };
 
   return (
@@ -40,7 +42,7 @@ const Contact = () => {
               <h2 className="text-2xl font-bold mb-6">Send us a Message</h2>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <Label htmlFor="name">Name</Label>
+                  <Label htmlFor="name">Name *</Label>
                   <Input
                     id="name"
                     placeholder="Your name"
@@ -53,7 +55,7 @@ const Contact = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">Email *</Label>
                   <Input
                     id="email"
                     type="email"
@@ -67,7 +69,20 @@ const Contact = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="message">Message</Label>
+                  <Label htmlFor="phone">Phone Number</Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    placeholder="+91 XXXXX XXXXX"
+                    value={formData.phone}
+                    onChange={(e) =>
+                      setFormData({ ...formData, phone: e.target.value })
+                    }
+                    className="mt-2"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="message">Message *</Label>
                   <Textarea
                     id="message"
                     placeholder="Your message..."
@@ -135,6 +150,11 @@ const Contact = () => {
                         +91 99750 70068
                       </a>
                     </p>
+                    <p className="text-sm text-muted-foreground mt-3">
+                      <strong>Business Hours:</strong><br />
+                      Mon - Sat: 9:00 AM - 7:00 PM<br />
+                      Sunday: Closed
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -181,6 +201,11 @@ const Contact = () => {
               </CardContent>
             </Card>
           </div>
+        </div>
+
+        {/* FAQ Section */}
+        <div className="max-w-4xl mx-auto mt-16">
+          <FAQ />
         </div>
       </div>
     </div>

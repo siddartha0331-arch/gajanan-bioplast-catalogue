@@ -84,7 +84,34 @@ export const CustomizationDialog = ({ product, children }: CustomizationDialogPr
         return;
       }
 
-      const notes = `Colors: ${selectedColors.join(", ")}, Print: ${printType}, Text: ${customText}, Logo: ${logoFile}`;
+      let logoUrl = null;
+
+      // Upload logo to storage if provided
+      if (logoFile) {
+        const fileExt = logoFile.name.split('.').pop();
+        const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('customer-logos')
+          .upload(fileName, logoFile);
+
+        if (uploadError) {
+          console.error("Logo upload error:", uploadError);
+          toast.error("Failed to upload logo, but continuing with order");
+        } else {
+          const { data: { publicUrl } } = supabase.storage
+            .from('customer-logos')
+            .getPublicUrl(fileName);
+          logoUrl = fileName; // Store the path for admin download
+        }
+      }
+
+      const notes = [
+        selectedColors.length > 0 ? `Colors: ${selectedColors.join(", ")}` : null,
+        `Print: ${printType}`,
+        customText ? `Text: ${customText}` : null,
+        logoFile ? `Logo: Uploaded` : null,
+      ].filter(Boolean).join(" | ");
 
       const { error } = await supabase.from("cart_items").insert({
         user_id: user.id,
@@ -94,6 +121,7 @@ export const CustomizationDialog = ({ product, children }: CustomizationDialogPr
         product_size: selectedSize,
         quantity,
         notes,
+        logo_url: logoUrl,
       });
 
       if (error) throw error;

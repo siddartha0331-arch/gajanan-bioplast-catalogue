@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Loader2, User, Mail, Phone, MapPin } from "lucide-react";
+import { Loader2, User, Mail, Phone, MapPin, Lock } from "lucide-react";
+import { ChangePasswordDialog } from "./ChangePasswordDialog";
 
 interface CustomerProfileProps {
   userId: string;
@@ -282,6 +283,24 @@ const CustomerProfile = ({ userId }: CustomerProfileProps) => {
               "Save Profile"
             )}
           </Button>
+        </CardContent>
+      </Card>
+
+      {/* Security Section */}
+      <Card className="card-glass border-2 border-primary/10">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-xl">
+            <Lock className="h-5 w-5 text-primary" />
+            Security
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ChangePasswordDialog>
+            <Button variant="outline" className="w-full sm:w-auto">
+              <Lock className="mr-2 h-4 w-4" />
+              Change Password
+            </Button>
+          </ChangePasswordDialog>
         </CardContent>
       </Card>
     </div>

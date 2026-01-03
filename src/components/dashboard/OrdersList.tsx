@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { Loader2, Download, Package } from "lucide-react";
 import { createNotification } from "@/hooks/useNotifications";
 import OrderMessages from "./OrderMessages";
+import OrderTimeline from "./OrderTimeline";
 
 interface OrdersListProps {
   userId: string;
@@ -173,6 +174,14 @@ const OrdersList = ({ userId, isAdmin }: OrdersListProps) => {
               </div>
             </CardHeader>
             <CardContent>
+              {/* Order Timeline */}
+              {!isAdmin && (
+                <OrderTimeline
+                  status={order.status}
+                  createdAt={order.created_at}
+                  expectedDate={order.expected_completion_date}
+                />
+              )}
               <div className="space-y-4">
                 {/* Order Items */}
                 {orderItems[order.id] && orderItems[order.id].length > 0 && (

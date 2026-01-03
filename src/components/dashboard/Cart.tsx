@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Trash2, ShoppingCart, Plus, Minus } from "lucide-react";
+import { Trash2, ShoppingCart, Plus, Minus, Package, Eye } from "lucide-react";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -16,6 +16,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
 
 interface CartItem {
   id: string;
@@ -25,6 +33,8 @@ interface CartItem {
   product_size: string;
   quantity: number;
   notes: string;
+  logo_url?: string;
+  product_image?: string;
 }
 
 interface CartProps {
@@ -49,7 +59,20 @@ const Cart = ({ userId, onCheckout }: CartProps) => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setCartItems(data || []);
+
+      // Fetch product images for each cart item
+      const itemsWithImages = await Promise.all(
+        (data || []).map(async (item) => {
+          const { data: product } = await supabase
+            .from("products")
+            .select("image")
+            .eq("id", item.product_id)
+            .single();
+          return { ...item, product_image: product?.image };
+        })
+      );
+
+      setCartItems(itemsWithImages);
     } catch (error) {
       console.error("Error fetching cart:", error);
       toast.error("Failed to load cart items");
@@ -195,51 +218,127 @@ const Cart = ({ userId, onCheckout }: CartProps) => {
               {cartItems.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-center gap-4 p-4 border rounded-lg"
+                  className="flex items-start gap-4 p-4 border rounded-lg bg-card"
                 >
-                  <div className="flex-1">
-                    <h4 className="font-semibold">{item.product_name}</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Type: {item.product_type} • Size: {item.product_size}
-                    </p>
-                    {item.notes && (
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Notes: {item.notes}
-                      </p>
+                  {/* Product Image */}
+                  <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+                    {item.product_image ? (
+                      <img
+                        src={item.product_image}
+                        alt={item.product_name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Package className="h-8 w-8 text-muted-foreground" />
+                      </div>
                     )}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                    >
-                      <Minus className="h-4 w-4" />
-                    </Button>
-                    <Input
-                      type="number"
-                      value={item.quantity}
-                      onChange={(e) =>
-                        updateQuantity(item.id, Number(e.target.value))
-                      }
-                      className="w-20 text-center"
-                      min={1}
-                    />
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <h4 className="font-semibold truncate">{item.product_name}</h4>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          <Badge variant="outline" className="text-xs">
+                            {item.product_type}
+                          </Badge>
+                          <Badge variant="secondary" className="text-xs">
+                            {item.product_size}
+                          </Badge>
+                        </div>
+                      </div>
+                      
+                      {/* View Details Dialog */}
+                      {item.notes && (
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Customization Details</DialogTitle>
+                            </DialogHeader>
+                            <div className="space-y-4">
+                              <div className="flex gap-4">
+                                {item.product_image && (
+                                  <img
+                                    src={item.product_image}
+                                    alt={item.product_name}
+                                    className="w-24 h-24 rounded-lg object-cover"
+                                  />
+                                )}
+                                <div>
+                                  <h4 className="font-semibold">{item.product_name}</h4>
+                                  <p className="text-sm text-muted-foreground">
+                                    {item.product_type} • {item.product_size}
+                                  </p>
+                                  <p className="text-sm mt-1">Qty: {item.quantity}</p>
+                                </div>
+                              </div>
+                              <div className="p-3 bg-muted rounded-lg">
+                                <p className="text-sm font-medium mb-1">Customizations:</p>
+                                <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                                  {item.notes}
+                                </p>
+                              </div>
+                              {item.logo_url && (
+                                <div>
+                                  <p className="text-sm font-medium mb-2">Uploaded Logo:</p>
+                                  <img
+                                    src={item.logo_url}
+                                    alt="Logo"
+                                    className="max-h-32 rounded-lg border"
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      )}
+                    </div>
+
+                    {/* Quantity Controls */}
+                    <div className="flex items-center justify-between mt-3">
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        >
+                          <Minus className="h-3 w-3" />
+                        </Button>
+                        <Input
+                          type="number"
+                          value={item.quantity}
+                          onChange={(e) =>
+                            updateQuantity(item.id, Number(e.target.value))
+                          }
+                          className="w-16 h-8 text-center text-sm"
+                          min={1}
+                        />
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        >
+                          <Plus className="h-3 w-3" />
+                        </Button>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={() => removeItem(item.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                  <Button
-                    variant="destructive"
-                    size="icon"
-                    onClick={() => removeItem(item.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
                 </div>
               ))}
             </div>

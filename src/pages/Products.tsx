@@ -5,12 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
-import { useTiltEffect } from "@/hooks/useTiltEffect";
-import { useMagneticHover } from "@/hooks/useMagneticHover";
 import { CustomizationDialog } from "@/components/products/CustomizationDialog";
 import { ProductSearch } from "@/components/products/ProductSearch";
 import { ProductCardSkeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { 
   Palette, 
   Package, 
@@ -18,7 +17,10 @@ import {
   CheckCircle2,
   Sparkles,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  MessageCircle,
+  Printer,
+  Ruler
 } from "lucide-react";
 
 interface Product {
@@ -37,217 +39,255 @@ interface Product {
   dimensions: string[];
 }
 
-const ProductCard = ({ product, index, user, navigate }: { 
+const ProductCard = ({ product, user, navigate }: { 
   product: Product; 
-  index: number; 
   user: User | null;
   navigate: (path: string) => void;
 }) => {
-  const tiltRef = useTiltEffect<HTMLDivElement>();
-  const magneticRef = useMagneticHover<HTMLButtonElement>({ strength: 0.2 });
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
   const productImages = product.images && product.images.length > 0 
     ? product.images 
     : [product.image];
 
-  const nextImage = () => {
+  const nextImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
     setCurrentImageIndex((prev) => (prev + 1) % productImages.length);
   };
 
-  const prevImage = () => {
+  const prevImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
     setCurrentImageIndex((prev) => (prev - 1 + productImages.length) % productImages.length);
   };
 
+  const handleGetQuote = () => {
+    // Build detailed WhatsApp message with all product info
+    const features = product.features?.join(", ") || "N/A";
+    const printingOptions = product.printing_options?.join(", ") || "N/A";
+    const dimensions = product.dimensions?.length > 0 ? product.dimensions.join(", ") : product.size;
+    
+    const message = `Hello Gajanan Bioplast,
+
+I would like to get a quote for:
+
+*Product:* ${product.name}
+*Type:* ${product.type}
+*Size:* ${product.size}
+*Available Sizes:* ${dimensions}
+*MOQ:* ${product.moq} units
+*Delivery:* ${product.delivery_days}
+
+*Features:* ${features}
+*Printing Options:* ${printingOptions}
+
+*Description:* ${product.description}
+
+Please provide pricing and customization options.`;
+
+    window.open(
+      `https://wa.me/919834711168?text=${encodeURIComponent(message)}`,
+      "_blank"
+    );
+  };
+
+  const handleLoginRequired = (action: string) => {
+    toast.error(`Please login to ${action}`);
+    navigate("/auth");
+  };
+
   return (
-    <Card
-      ref={tiltRef}
-      className="tilt-card group border-none shadow-lg hover:shadow-2xl transition-all duration-300 animate-fade-up overflow-hidden"
-      style={{ animationDelay: `${index * 0.05}s` }}
-    >
-      <div className="tilt-glow" />
-      <div className="tilt-card-inner">
-        <CardContent className="p-0">
-          {/* Product Image with Badge Overlay */}
-          <div className="relative aspect-square overflow-hidden rounded-t-lg bg-muted image-shine">
-            <img
-              src={productImages[currentImageIndex]}
-              alt={product.name}
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:rotate-2"
-            />
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-accent/20 mix-blend-overlay opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            
-            {/* Image Navigation */}
-            {productImages.length > 1 && (
-              <>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 bg-black/50 hover:bg-black/70 text-white opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    prevImage();
-                  }}
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 bg-black/50 hover:bg-black/70 text-white opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    nextImage();
-                  }}
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-                {/* Image indicators */}
-                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
-                  {productImages.map((_, idx) => (
-                    <div
-                      key={idx}
-                      className={`h-1.5 rounded-full transition-all ${
-                        idx === currentImageIndex 
-                          ? 'bg-white w-4' 
-                          : 'bg-white/50 w-1.5'
-                      }`}
-                    />
-                  ))}
-                </div>
-              </>
-            )}
-            
-            {/* Premium Badge */}
-            <div className="absolute top-4 right-4">
-              <Badge className="bg-gradient-to-r from-primary to-accent text-white border-none shadow-lg">
-                {product.type}
-              </Badge>
-            </div>
+    <Card className="group border shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden bg-card">
+      <CardContent className="p-0">
+        {/* Product Image */}
+        <div className="relative aspect-square overflow-hidden rounded-t-lg bg-muted">
+          <img
+            src={productImages[currentImageIndex]}
+            alt={product.name}
+            className="w-full h-full object-cover"
+          />
+          
+          {/* Image Navigation */}
+          {productImages.length > 1 && (
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 bg-black/50 hover:bg-black/70 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={prevImage}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 bg-black/50 hover:bg-black/70 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={nextImage}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+              {/* Image indicators */}
+              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+                {productImages.map((_, idx) => (
+                  <div
+                    key={idx}
+                    className={`h-1.5 rounded-full transition-all ${
+                      idx === currentImageIndex 
+                        ? 'bg-white w-4' 
+                        : 'bg-white/50 w-1.5'
+                    }`}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+          
+          {/* Type Badge */}
+          <div className="absolute top-4 right-4">
+            <Badge className="bg-gradient-to-r from-primary to-accent text-white border-none shadow-lg">
+              {product.type}
+            </Badge>
+          </div>
 
-            {/* MOQ Badge */}
-            <div className="absolute top-4 left-4">
-              <Badge variant="secondary" className="shadow-lg">
-                MOQ: {product.moq}+
-              </Badge>
-            </div>
+          {/* MOQ Badge */}
+          <div className="absolute top-4 left-4">
+            <Badge variant="secondary" className="shadow-lg">
+              MOQ: {product.moq}+
+            </Badge>
+          </div>
+        </div>
 
-            {/* Customization Overlay */}
-            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
-              <CustomizationDialog product={product}>
-                <Button 
-                  size="lg"
-                  className="bg-white text-black hover:bg-white/90 font-bold shadow-2xl transform scale-90 group-hover:scale-100 transition-transform"
-                >
-                  <Palette className="w-5 h-5 mr-2" />
-                  Customize Now
-                </Button>
-              </CustomizationDialog>
+        {/* Product Details */}
+        <div className="p-5 space-y-4">
+          {/* Header */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold text-lg">{product.name}</h3>
+              <span className="text-sm font-semibold text-muted-foreground">
+                {product.size}
+              </span>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {product.description}
+            </p>
+          </div>
+
+          {/* Available Sizes/Dimensions */}
+          {product.dimensions && product.dimensions.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                <Ruler className="w-3.5 h-3.5" />
+                Available Sizes:
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {product.dimensions.map((dim, idx) => (
+                  <Badge key={idx} variant="outline" className="text-xs">
+                    {dim}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Features */}
+          {product.features && product.features.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
+                Features:
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {product.features.map((feature, idx) => (
+                  <Badge key={idx} variant="secondary" className="text-xs">
+                    {feature}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Printing Options */}
+          {product.printing_options && product.printing_options.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                <Printer className="w-3.5 h-3.5 text-accent" />
+                Printing Options:
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {product.printing_options.map((option, idx) => (
+                  <Badge key={idx} variant="outline" className="text-xs bg-accent/10">
+                    {option}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Business Info */}
+          <div className="grid grid-cols-2 gap-3 pt-3 border-t">
+            <div className="flex items-center gap-2 text-xs">
+              <Clock className="w-4 h-4 text-primary" />
+              <div>
+                <p className="text-muted-foreground">Delivery</p>
+                <p className="font-semibold">{product.delivery_days}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 text-xs">
+              <Package className="w-4 h-4 text-accent" />
+              <div>
+                <p className="text-muted-foreground">Min Order</p>
+                <p className="font-semibold">{product.moq} units</p>
+              </div>
             </div>
           </div>
 
-          {/* Product Details */}
-          <div className="p-6 space-y-4">
-            {/* Header */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <h3 className="font-bold text-lg">{product.name}</h3>
-                <span className="text-sm font-semibold text-muted-foreground">
-                  {product.size}
-                </span>
-              </div>
-              <p className="text-sm text-muted-foreground line-clamp-2">
-                {product.description}
-              </p>
-            </div>
-
-            {/* Key Features */}
-            <div className="flex flex-wrap gap-1.5">
-              {product.features && product.features.length > 0 ? (
-                product.features.slice(0, 2).map((feature, idx) => (
-                  <Badge 
-                    key={idx} 
-                    variant="outline" 
-                    className="text-xs"
-                  >
-                    <CheckCircle2 className="w-3 h-3 mr-1" />
-                    {feature}
-                  </Badge>
-                ))
-              ) : null}
-            </div>
-
-            {/* Business Info */}
-            <div className="grid grid-cols-2 gap-3 pt-2 border-t">
-              <div className="flex items-center gap-2 text-xs">
-                <Clock className="w-4 h-4 text-primary" />
-                <div>
-                  <p className="text-muted-foreground">Delivery</p>
-                  <p className="font-semibold">{product.delivery_days}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 text-xs">
-                <Package className="w-4 h-4 text-accent" />
-                <div>
-                  <p className="text-muted-foreground">Print Options</p>
-                  <p className="font-semibold">{product.printing_options?.length || 0}+</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="space-y-3 pt-2">
-              <Badge variant="secondary" className="w-full justify-center py-1.5">
-                Bulk discounts available
-              </Badge>
-              <div className="flex gap-2">
+          {/* Action Buttons */}
+          <div className="space-y-3 pt-2">
+            <div className="flex gap-2">
+              {user ? (
                 <CustomizationDialog product={product}>
                   <Button 
                     variant="outline"
-                    className="flex-1 group/btn border-2 hover:border-primary"
+                    className="flex-1 border-2 hover:border-primary"
                   >
-                    <Sparkles className="w-4 h-4 mr-2 group-hover/btn:text-primary transition-colors" />
+                    <Sparkles className="w-4 h-4 mr-2" />
                     Customize
                   </Button>
                 </CustomizationDialog>
+              ) : (
+                <Button 
+                  variant="outline"
+                  className="flex-1 border-2 hover:border-primary"
+                  onClick={() => handleLoginRequired("customize products")}
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Customize
+                </Button>
+              )}
 
-                {user ? (
-                  <Button
-                    ref={magneticRef}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate("/dashboard");
-                    }}
-                    className="flex-1 magnetic-area bg-gradient-to-r from-primary via-accent to-secondary hover:shadow-glow text-white"
-                  >
-                    Order Now
-                  </Button>
-                ) : (
-                  <Button
-                    ref={magneticRef}
-                    asChild
-                    className="flex-1 magnetic-area bg-gradient-to-r from-primary via-accent to-secondary hover:shadow-glow text-white"
-                  >
-                    <a
-                      href={`https://wa.me/919834711168?text=Hello%20Gajanan%20Bioplast,%20I%20want%20to%20enquire%20about%20${encodeURIComponent(
-                        product.name
-                      )}%20(${product.size})%20with%20custom%20printing.`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Get Quote
-                    </a>
-                  </Button>
-                )}
-              </div>
+              {user ? (
+                <Button
+                  onClick={handleGetQuote}
+                  className="flex-1 bg-gradient-to-r from-primary via-accent to-secondary text-white"
+                >
+                  <MessageCircle className="w-4 h-4 mr-2" />
+                  Get Quote
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => handleLoginRequired("get a quote")}
+                  className="flex-1 bg-gradient-to-r from-primary via-accent to-secondary text-white"
+                >
+                  <MessageCircle className="w-4 h-4 mr-2" />
+                  Get Quote
+                </Button>
+              )}
             </div>
           </div>
-        </CardContent>
-      </div>
+        </div>
+      </CardContent>
     </Card>
   );
 };
-
 const Products = () => {
   const [selectedType, setSelectedType] = useState<string>("All");
   const [user, setUser] = useState<User | null>(null);
@@ -411,12 +451,11 @@ const Products = () => {
         </div>
 
         {/* Products Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredAndSortedProducts.map((product, index) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredAndSortedProducts.map((product) => (
             <ProductCard
               key={product.id}
               product={product}
-              index={index}
               user={user}
               navigate={navigate}
             />

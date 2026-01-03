@@ -73,6 +73,19 @@ export const CustomizationDialog = ({ product, children }: CustomizationDialogPr
     );
   };
 
+  const handleOpenChange = async (open: boolean) => {
+    if (open) {
+      // Check if user is logged in before opening dialog
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("Please login to customize products");
+        navigate("/auth");
+        return;
+      }
+    }
+    setOpen(open);
+  };
+
   const addToCart = async () => {
     setLoading(true);
     try {
@@ -138,7 +151,7 @@ export const CustomizationDialog = ({ product, children }: CustomizationDialogPr
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>

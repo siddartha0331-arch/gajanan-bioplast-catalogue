@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { ForgotPasswordDialog } from "@/components/auth/ForgotPasswordDialog";
 import { PasswordStrengthIndicator } from "@/components/auth/PasswordStrengthIndicator";
+import { notifyAdminNewUser } from "@/hooks/useNotifications";
 
 const authSchema = z.object({
   email: z.string().trim().email({ message: "Invalid email address" }).max(255),
@@ -75,6 +76,10 @@ const Auth = () => {
       });
 
       if (error) throw error;
+      
+      // Notify admin about new user signup
+      await notifyAdminNewUser(validation.full_name || "", validation.email);
+      
       toast.success("Account created! Please check your email.");
     } catch (error: any) {
       if (error instanceof z.ZodError) {

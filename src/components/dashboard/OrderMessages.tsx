@@ -113,6 +113,11 @@ const OrderMessages = ({
 
   const sendMessage = async () => {
     if (!newMessage.trim()) return;
+    
+    if (!otherUserId) {
+      toast.error("Unable to send message - no recipient found");
+      return;
+    }
 
     setSending(true);
     const { error } = await supabase.from("order_messages").insert({

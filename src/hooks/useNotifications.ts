@@ -162,3 +162,68 @@ export const notifyAdminNewOrder = async (orderId: string, customerName: string)
     }
   }
 };
+
+// Helper to notify admin about new user signup
+export const notifyAdminNewUser = async (userName: string, userEmail: string) => {
+  const { data: adminRoles } = await supabase
+    .from("user_roles")
+    .select("user_id")
+    .eq("role", "admin");
+
+  if (adminRoles) {
+    for (const admin of adminRoles) {
+      await createNotification(
+        admin.user_id,
+        "New User Registered",
+        `${userName || "A new user"} (${userEmail}) has joined.`,
+        "user"
+      );
+    }
+  }
+};
+
+// Helper to notify admin about quote request
+export const notifyAdminQuoteRequest = async (
+  customerName: string,
+  companyName: string,
+  productName: string
+) => {
+  const { data: adminRoles } = await supabase
+    .from("user_roles")
+    .select("user_id")
+    .eq("role", "admin");
+
+  if (adminRoles) {
+    for (const admin of adminRoles) {
+      await createNotification(
+        admin.user_id,
+        "New Quote Request",
+        `${customerName}${companyName ? ` (${companyName})` : ""} requested a quote for ${productName}.`,
+        "quote"
+      );
+    }
+  }
+};
+
+// Helper to notify admin about customization order
+export const notifyAdminCustomization = async (
+  customerName: string,
+  productName: string,
+  quantity: number
+) => {
+  const { data: adminRoles } = await supabase
+    .from("user_roles")
+    .select("user_id")
+    .eq("role", "admin");
+
+  if (adminRoles) {
+    for (const admin of adminRoles) {
+      await createNotification(
+        admin.user_id,
+        "New Customization Added",
+        `${customerName || "A customer"} added ${productName} (qty: ${quantity}) to cart with customizations.`,
+        "customization"
+      );
+    }
+  }
+};

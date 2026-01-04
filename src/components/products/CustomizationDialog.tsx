@@ -17,6 +17,7 @@ import { Palette, Type, Image as ImageIcon, Sparkles, ShoppingCart } from "lucid
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { notifyAdminCustomization } from "@/hooks/useNotifications";
 
 interface Product {
   id: string;
@@ -138,6 +139,16 @@ export const CustomizationDialog = ({ product, children }: CustomizationDialogPr
       });
 
       if (error) throw error;
+
+      // Notify admin about the customization
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name, business_name")
+        .eq("id", user.id)
+        .single();
+      
+      const customerName = profile?.business_name || profile?.full_name || "A customer";
+      await notifyAdminCustomization(customerName, product.name, quantity);
 
       toast.success("Added to cart!");
       setOpen(false);

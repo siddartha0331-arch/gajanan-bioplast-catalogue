@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { MessageCircle, Send, User, Building2, Palette, Ruler } from "lucide-react";
+import { notifyAdminQuoteRequest } from "@/hooks/useNotifications";
 
 interface Product {
   id: string;
@@ -47,7 +48,7 @@ export const QuoteRequestDialog = ({ product, children }: QuoteRequestDialogProp
   const [quantity, setQuantity] = useState("");
   const [additionalNotes, setAdditionalNotes] = useState("");
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const features = product.features?.join(", ") || "N/A";
     const printingOptions = product.printing_options?.join(", ") || "N/A";
     const availableSizes = product.dimensions?.length > 0 ? product.dimensions.join(", ") : product.size;
@@ -78,6 +79,9 @@ ${additionalNotes ? `• Additional Notes: ${additionalNotes}` : ""}
 *Description:* ${product.description}
 
 Please provide pricing and availability.`;
+
+    // Notify admin about the quote request
+    await notifyAdminQuoteRequest(customerName, companyName, product.name);
 
     window.open(
       `https://wa.me/919834711168?text=${encodeURIComponent(message)}`,

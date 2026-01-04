@@ -48,19 +48,15 @@ const OrderMessages = ({
   const [unreadCount, setUnreadCount] = useState(0);
   const [otherUserId, setOtherUserId] = useState(initialOtherUserId || "");
 
-  // For customers, fetch an admin to message
+  // For customers, fetch an admin to message using security definer function
   useEffect(() => {
     const fetchAdminId = async () => {
       if (!isAdmin && !initialOtherUserId) {
-        const { data } = await supabase
-          .from("user_roles")
-          .select("user_id")
-          .eq("role", "admin")
-          .limit(1)
-          .single();
+        const { data, error } = await supabase
+          .rpc("get_admin_user_id");
         
-        if (data) {
-          setOtherUserId(data.user_id);
+        if (data && !error) {
+          setOtherUserId(data);
         }
       }
     };

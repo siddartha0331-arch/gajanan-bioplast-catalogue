@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { CustomizationDialog } from "@/components/products/CustomizationDialog";
 import { ProductSearch } from "@/components/products/ProductSearch";
+import { QuoteRequestDialog } from "@/components/products/QuoteRequestDialog";
 import { ProductCardSkeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { toast } from "sonner";
@@ -58,36 +59,6 @@ const ProductCard = ({ product, user, navigate }: {
   const prevImage = (e: React.MouseEvent) => {
     e.stopPropagation();
     setCurrentImageIndex((prev) => (prev - 1 + productImages.length) % productImages.length);
-  };
-
-  const handleGetQuote = () => {
-    // Build detailed WhatsApp message with all product info
-    const features = product.features?.join(", ") || "N/A";
-    const printingOptions = product.printing_options?.join(", ") || "N/A";
-    const dimensions = product.dimensions?.length > 0 ? product.dimensions.join(", ") : product.size;
-    
-    const message = `Hello Gajanan Bioplast,
-
-I would like to get a quote for:
-
-*Product:* ${product.name}
-*Type:* ${product.type}
-*Size:* ${product.size}
-*Available Sizes:* ${dimensions}
-*MOQ:* ${product.moq} units
-*Delivery:* ${product.delivery_days}
-
-*Features:* ${features}
-*Printing Options:* ${printingOptions}
-
-*Description:* ${product.description}
-
-Please provide pricing and customization options.`;
-
-    window.open(
-      `https://wa.me/919834711168?text=${encodeURIComponent(message)}`,
-      "_blank"
-    );
   };
 
   const handleLoginRequired = (action: string) => {
@@ -265,13 +236,14 @@ Please provide pricing and customization options.`;
               )}
 
               {user ? (
-                <Button
-                  onClick={handleGetQuote}
-                  className="flex-1 bg-gradient-to-r from-primary via-accent to-secondary text-white"
-                >
-                  <MessageCircle className="w-4 h-4 mr-2" />
-                  Get Quote
-                </Button>
+                <QuoteRequestDialog product={product}>
+                  <Button
+                    className="flex-1 bg-gradient-to-r from-primary via-accent to-secondary text-white"
+                  >
+                    <MessageCircle className="w-4 h-4 mr-2" />
+                    Get Quote
+                  </Button>
+                </QuoteRequestDialog>
               ) : (
                 <Button
                   onClick={() => handleLoginRequired("get a quote")}

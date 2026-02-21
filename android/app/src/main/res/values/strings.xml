@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Gajanan Bioplast</string>
+    <string name="title_activity_main">Gajanan Bioplast</string>
+    <string name="package_name">com.gajananbioplast.app</string>
+    <string name="custom_url_scheme">com.gajananbioplast.app</string>
+</resources>
